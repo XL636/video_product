@@ -1,4 +1,5 @@
 import { defineConfig } from '@playwright/test'
+import path from 'path'
 
 export default defineConfig({
   testDir: './tests/e2e',
@@ -11,6 +12,8 @@ export default defineConfig({
     baseURL: process.env.BASE_URL || 'http://localhost:5173',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
+    // 忽略 HTTPS 错误（本地开发环境）
+    ignoreHTTPSErrors: true,
   },
   projects: [
     {
@@ -26,8 +29,10 @@ export default defineConfig({
       use: { browserName: 'webkit' },
     },
   ],
+  // 启动前端开发服务器
   webServer: {
-    command: 'npm run dev',
+    command: 'cd frontend && npm run dev',
+    cwd: path.resolve(__dirname, '..'),
     url: 'http://localhost:5173',
     reuseExistingServer: !process.env.CI,
     timeout: 120000,
