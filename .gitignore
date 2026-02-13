@@ -1,0 +1,79 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+*.egg
+.eggs/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose.override.yml
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+coverage/
+
+# Build outputs
+frontend/dist/
+backend/*.egg-info/
+
+# MinIO data (if local)
+minio_data/
+
+# Logs
+*.log
+
+# === Added by project-init ===
+# OS
+Desktop.ini
+
+# Editor
+*.sublime-project
+*.sublime-workspace
+*.code-workspace
+
+# Cache
+.cache/
+.turbo/
+*.tsbuildinfo
+
+# Python extras
+.mypy_cache/
+.pytype/
+.tox/
+.nox/
+celerybeat-schedule
+celerybeat.pid
+
+# Misc
+*.bak
+*.tmp
+*.temp

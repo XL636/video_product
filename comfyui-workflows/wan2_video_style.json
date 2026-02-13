@@ -1,0 +1,12 @@
+{
+  "_meta": {
+    "title": "WAN 2.0 Video Style Transfer",
+    "description": "Placeholder workflow for WAN 2.0 anime video style transfer. Replace with actual ComfyUI workflow export.",
+    "version": "0.1.0"
+  },
+  "nodes": [],
+  "links": [],
+  "groups": [],
+  "config": {},
+  "extra": {}
+}
