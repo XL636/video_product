@@ -1,5 +1,7 @@
+import { Film } from 'lucide-react'
 import { VideoCard } from './VideoCard'
 import type { Video } from '@/types'
+import { useLanguage } from '@/hooks/useLanguage'
 
 interface VideoGridProps {
   videos: Video[]
@@ -14,27 +16,21 @@ export function VideoGrid({
   onDelete,
   onRegenerate,
 }: VideoGridProps) {
+  const { language } = useLanguage()
+
   if (videos.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <div className="mb-4 h-16 w-16 rounded-full bg-slate-800 flex items-center justify-center">
-          <svg
-            className="h-8 w-8 text-muted-foreground"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1.5}
-              d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-            />
-          </svg>
+          <Film className="h-8 w-8 text-muted-foreground" />
         </div>
-        <h3 className="text-lg font-medium">No videos yet</h3>
+        <h3 className="text-lg font-medium">
+          {language === 'zh-CN' ? '还没有视频' : 'No videos yet'}
+        </h3>
         <p className="mt-1 text-sm text-muted-foreground">
-          Generate your first anime video to see it here.
+          {language === 'zh-CN'
+            ? '生成你的第一个动漫视频吧！'
+            : 'Generate your first anime video to see it here.'}
         </p>
       </div>
     )

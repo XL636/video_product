@@ -16,6 +16,7 @@ import { toast } from '@/components/ui/toast'
 import { useSettingsStore } from '@/stores/settingsStore'
 import api from '@/lib/api'
 import type { ApiKeyConfig, StylePreset } from '@/types'
+import { useLanguage } from '@/hooks/useLanguage'
 
 interface ProviderConfig {
   key: string
@@ -23,25 +24,105 @@ interface ProviderConfig {
   description: string
 }
 
-const providers: ProviderConfig[] = [
-  {
-    key: 'kling',
-    label: 'Kling AI',
-    description: 'High-quality image and text to video generation.',
-  },
-  {
-    key: 'hailuo',
-    label: 'Hailuo',
-    description: 'Fast anime-style video generation.',
-  },
-  {
-    key: 'comfyui',
-    label: 'ComfyUI',
-    description: 'Local video-to-anime conversion pipeline.',
-  },
-]
+export function SettingsPage() {
+  const {
+    defaultProvider,
+    defaultStylePreset,
+    setDefaultProvider,
+    setDefaultStylePreset,
+  } = useSettingsStore()
+  const { language, t } = useLanguage()
+
+  const providers: ProviderConfig[] = [
+    {
+      key: 'kling',
+      label: 'Kling AI',
+      description: language === 'zh-CN' ? '高质量图片和文字转视频生成。' : 'High-quality image and text to video generation.',
+    },
+    {
+      key: 'hailuo',
+      label: 'Hailuo',
+      description: language === 'zh-CN' ? '快速动漫风格视频生成。' : 'Fast anime-style video generation.',
+    },
+    {
+      key: 'comfyui',
+      label: 'ComfyUI',
+      description: language === 'zh-CN' ? '本地视频转动漫转换流程。' : 'Local video-to-anime conversion pipeline.',
+    },
+  ]
+
+  return (
+    <div className="mx-auto max-w-3xl p-6">
+      <h2 className="mb-6 text-xl font-semibold">{t.nav?.settings || 'Settings'}</h2>
+
+      {/* API Keys */}
+      <div className="mb-8 space-y-4">
+        <h3 className="text-lg font-medium">
+          {language === 'zh-CN' ? 'API 密钥' : 'API Keys'}
+        </h3>
+        <p className="text-sm text-muted-foreground">
+          {language === 'zh-CN'
+            ? '配置您的提供商 API 密钥以启用视频生成。'
+            : 'Configure your provider API keys to enable video generation.'}
+        </p>
+        <div className="space-y-4">
+          {providers.map((provider) => (
+            <ApiKeyCard key={provider.key} provider={provider} />
+          ))}
+        </div>
+      </div>
+
+      <Separator className="my-8" />
+
+      {/* Defaults */}
+      <div className="space-y-6">
+        <h3 className="text-lg font-medium">
+          {language === 'zh-CN' ? '默认设置' : 'Defaults'}
+        </h3>
+
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label>{language === 'zh-CN' ? '默认提供商' : 'Default Provider'}</Label>
+            <Select value={defaultProvider} onValueChange={setDefaultProvider}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="kling">Kling AI</SelectItem>
+                <SelectItem value="hailuo">Hailuo</SelectItem>
+                <SelectItem value="comfyui">ComfyUI ({language === 'zh-CN' ? '本地' : 'Local'})</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>{language === 'zh-CN' ? '默认风格预设' : 'Default Style Preset'}</Label>
+            <Select
+              value={defaultStylePreset}
+              onValueChange={(val) =>
+                setDefaultStylePreset(val as StylePreset)
+              }
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ghibli">{t.styles?.ghibli || 'Ghibli'}</SelectItem>
+                <SelectItem value="shonen">{t.styles?.shonen || 'Shonen'}</SelectItem>
+                <SelectItem value="seinen">{t.styles?.seinen || 'Seinen'}</SelectItem>
+                <SelectItem value="cyberpunk_anime">{t.styles?.cyberpunk || 'Cyberpunk'}</SelectItem>
+                <SelectItem value="chibi">{t.styles?.chibi || 'Chibi'}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 function ApiKeyCard({ provider }: { provider: ProviderConfig }) {
+  const { language } = useLanguage()
   const [apiKey, setApiKey] = useState('')
   const [isConfigured, setIsConfigured] = useState(false)
   const [showKey, setShowKey] = useState(false)
@@ -72,9 +153,17 @@ function ApiKeyCard({ provider }: { provider: ProviderConfig }) {
       setIsConfigured(true)
       setApiKey('')
       setShowKey(false)
-      toast({ title: `${provider.label} API key saved`, variant: 'success' })
+      toast({
+        title: language === 'zh-CN'
+          ? `${provider.label} API 密钥已保存`
+          : `${provider.label} API key saved`,
+        variant: 'success',
+      })
     } catch {
-      toast({ title: 'Failed to save API key', variant: 'destructive' })
+      toast({
+        title: language === 'zh-CN' ? '保存 API 密钥失败' : 'Failed to save API key',
+        variant: 'destructive',
+      })
     } finally {
       setIsSaving(false)
     }
@@ -85,9 +174,17 @@ function ApiKeyCard({ provider }: { provider: ProviderConfig }) {
       await api.delete(`/settings/api-keys/${provider.key}`)
       setIsConfigured(false)
       setApiKey('')
-      toast({ title: `${provider.label} API key removed`, variant: 'default' })
+      toast({
+        title: language === 'zh-CN'
+          ? `${provider.label} API 密钥已移除`
+          : `${provider.label} API key removed`,
+        variant: 'default',
+      })
     } catch {
-      toast({ title: 'Failed to remove API key', variant: 'destructive' })
+      toast({
+        title: language === 'zh-CN' ? '移除 API 密钥失败' : 'Failed to remove API key',
+        variant: 'destructive',
+      })
     }
   }
 
@@ -104,7 +201,7 @@ function ApiKeyCard({ provider }: { provider: ProviderConfig }) {
           </div>
           {isConfigured && (
             <span className="ml-auto rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-medium text-emerald-400">
-              Configured
+              {language === 'zh-CN' ? '已配置' : 'Configured'}
             </span>
           )}
         </div>
@@ -116,7 +213,7 @@ function ApiKeyCard({ provider }: { provider: ProviderConfig }) {
               type={showKey ? 'text' : 'password'}
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
-              placeholder={isConfigured ? '********' : 'Enter API key...'}
+              placeholder={isConfigured ? '********' : (language === 'zh-CN' ? '输入 API 密钥...' : 'Enter API key...')}
               className="pr-9"
             />
             <button
@@ -137,88 +234,16 @@ function ApiKeyCard({ provider }: { provider: ProviderConfig }) {
             size="sm"
           >
             <Save className="mr-1 h-3 w-3" />
-            Save
+            {language === 'zh-CN' ? '保存' : 'Save'}
           </Button>
           {isConfigured && (
             <Button variant="destructive" size="sm" onClick={handleDelete}>
               <Trash2 className="mr-1 h-3 w-3" />
-              Delete
+              {language === 'zh-CN' ? '删除' : 'Delete'}
             </Button>
           )}
         </div>
       </CardContent>
     </Card>
-  )
-}
-
-export function SettingsPage() {
-  const {
-    defaultProvider,
-    defaultStylePreset,
-    setDefaultProvider,
-    setDefaultStylePreset,
-  } = useSettingsStore()
-
-  return (
-    <div className="mx-auto max-w-3xl p-6">
-      <h2 className="mb-6 text-xl font-semibold">Settings</h2>
-
-      {/* API Keys */}
-      <div className="mb-8 space-y-4">
-        <h3 className="text-lg font-medium">API Keys</h3>
-        <p className="text-sm text-muted-foreground">
-          Configure your provider API keys to enable video generation.
-        </p>
-        <div className="space-y-4">
-          {providers.map((provider) => (
-            <ApiKeyCard key={provider.key} provider={provider} />
-          ))}
-        </div>
-      </div>
-
-      <Separator className="my-8" />
-
-      {/* Defaults */}
-      <div className="space-y-6">
-        <h3 className="text-lg font-medium">Defaults</h3>
-
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-          <div className="space-y-2">
-            <Label>Default Provider</Label>
-            <Select value={defaultProvider} onValueChange={setDefaultProvider}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="kling">Kling AI</SelectItem>
-                <SelectItem value="hailuo">Hailuo</SelectItem>
-                <SelectItem value="comfyui">ComfyUI (Local)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Default Style Preset</Label>
-            <Select
-              value={defaultStylePreset}
-              onValueChange={(val) =>
-                setDefaultStylePreset(val as StylePreset)
-              }
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ghibli">Ghibli</SelectItem>
-                <SelectItem value="shonen">Shonen</SelectItem>
-                <SelectItem value="seinen">Seinen</SelectItem>
-                <SelectItem value="cyberpunk_anime">Cyberpunk Anime</SelectItem>
-                <SelectItem value="chibi">Chibi</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-      </div>
-    </div>
   )
 }
