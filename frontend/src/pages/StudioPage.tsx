@@ -38,6 +38,7 @@ import { useJobStore } from '@/stores/jobStore'
 import { toast } from '@/components/ui/toast'
 import api from '@/lib/api'
 import type { Character, Scene, Job } from '@/types'
+import { useLanguage } from '@/hooks/useLanguage'
 
 // For now, we'll use a mock story ID for merge functionality
 // In a full implementation, this would come from a saved story
@@ -53,6 +54,7 @@ export function StudioPage() {
   const [mergedVideoUrl, setMergedVideoUrl] = useState<string | null>(null)
   const { upload } = useFileUpload()
   const addJob = useJobStore((state) => state.addJob)
+  const { t } = useLanguage()
 
   const [charImageUrl, setCharImageUrl] = useState<string | null>(null)
 
@@ -107,7 +109,7 @@ export function StudioPage() {
 
   const generateScene = async (scene: Scene) => {
     if (!scene.prompt.trim()) {
-      toast({ title: 'Scene needs a prompt', variant: 'destructive' })
+      toast({ title: t.messages?.sceneNeedsPrompt, variant: 'destructive' })
       return
     }
 
@@ -124,9 +126,9 @@ export function StudioPage() {
         job_id: response.data.id,
         status: 'processing',
       })
-      toast({ title: 'Scene generation started!', variant: 'success' })
+      toast({ title: t.messages?.sceneGenStarted, variant: 'success' })
     } catch {
-      toast({ title: 'Failed to generate scene', variant: 'destructive' })
+      toast({ title: t.messages?.sceneGenFailed, variant: 'destructive' })
     }
   }
 
@@ -135,7 +137,7 @@ export function StudioPage() {
       (s) => s.status === 'draft' && s.prompt.trim()
     )
     if (pendingScenes.length === 0) {
-      toast({ title: 'No scenes to generate', variant: 'destructive' })
+      toast({ title: t.messages?.noScenesToGenerate, variant: 'destructive' })
       return
     }
     for (const scene of pendingScenes) {
@@ -146,7 +148,7 @@ export function StudioPage() {
   const mergeScenes = async () => {
     const completedScenes = scenes.filter(s => s.status === 'completed')
     if (completedScenes.length === 0) {
-      toast({ title: 'No completed scenes to merge', variant: 'destructive' })
+      toast({ title: t.messages?.noCompletedScenes, variant: 'destructive' })
       return
     }
 
@@ -155,21 +157,21 @@ export function StudioPage() {
       // Call the merge endpoint
       const response = await api.post(`/stories/${STORY_ID}/merge`)
       toast({
-        title: 'Merge started',
-        description: `Merging ${response.data.scene_count} scenes...`,
+        title: t.messages?.mergeStarted,
+        description: (t.messages?.mergingScenes || '').replace('{count}', String(response.data.scene_count)),
         variant: 'default',
       })
     } catch (error: any) {
       if (error?.response?.status === 404) {
         toast({
-          title: 'Please save your story first',
-          description: 'Merge requires a saved story. Create a new story in the Stories tab.',
+          title: t.messages?.saveStoryFirst,
+          description: t.messages?.saveStoryDesc,
           variant: 'destructive',
         })
       } else {
         toast({
-          title: 'Failed to start merge',
-          description: error?.response?.data?.detail || error?.message || 'Unknown error',
+          title: t.messages?.mergeFailed,
+          description: error?.response?.data?.detail || error?.message || '',
           variant: 'destructive',
         })
       }
@@ -202,12 +204,24 @@ export function StudioPage() {
     }
   }
 
+  const getStatusLabel = (status: string) => {
+    const statusMap: Record<string, string | undefined> = {
+      queued: t.status?.queued,
+      processing: t.status?.processing,
+      completed: t.status?.completed,
+      failed: t.status?.failed,
+      submitted: t.status?.submitted,
+      draft: t.status?.draft,
+    }
+    return statusMap[status] || status
+  }
+
   return (
     <div className="flex flex-col h-full lg:flex-row">
       {/* Left Panel - Characters */}
       <div className="w-full border-r border-slate-800 flex flex-col lg:w-72 lg:border-r lg:border-b-0 border-b lg:border-b border-slate-800 max-h-48 lg:max-h-full">
         <div className="flex items-center justify-between p-4 border-b border-slate-800">
-          <h3 className="text-sm font-semibold">Characters</h3>
+          <h3 className="text-sm font-semibold">{t.studio?.characters}</h3>
           <Button
             variant="ghost"
             size="icon"
@@ -221,7 +235,7 @@ export function StudioPage() {
         <ScrollArea className="flex-1 p-3">
           {characters.length === 0 ? (
             <p className="py-8 text-center text-xs text-muted-foreground">
-              Add characters to use in your story scenes.
+              {t.studio?.addCharHint}
             </p>
           ) : (
             <div className="space-y-2">
@@ -247,7 +261,7 @@ export function StudioPage() {
                         {char.name}
                       </p>
                       <p className="truncate text-[10px] text-muted-foreground">
-                        {char.description || 'No description'}
+                        {char.description || t.studio?.noDescription}
                       </p>
                     </div>
                     <Button
@@ -269,10 +283,10 @@ export function StudioPage() {
       {/* Center - Scene Timeline */}
       <div className="flex-1 flex flex-col overflow-hidden">
         <div className="flex items-center justify-between border-b border-slate-800 p-4">
-          <h3 className="text-sm font-semibold">Scene Timeline</h3>
+          <h3 className="text-sm font-semibold">{t.studio?.sceneTimeline}</h3>
           <Button variant="outline" size="sm" onClick={addScene}>
             <Plus className="mr-1 h-3 w-3" />
-            Add Scene
+            {t.button?.addScene}
           </Button>
         </div>
 
@@ -280,13 +294,13 @@ export function StudioPage() {
           {scenes.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-center">
               <Upload className="mb-3 h-10 w-10 text-muted-foreground" />
-              <h3 className="text-base font-medium">No scenes yet</h3>
+              <h3 className="text-base font-medium">{t.studio?.noScenesYet}</h3>
               <p className="mt-1 text-sm text-muted-foreground">
-                Add your first scene to start building your story.
+                {t.studio?.addSceneHint}
               </p>
               <Button variant="outline" className="mt-4" onClick={addScene}>
                 <Plus className="mr-1 h-3 w-3" />
-                Add First Scene
+                {t.button?.addFirstScene}
               </Button>
             </div>
           ) : (
@@ -299,10 +313,10 @@ export function StudioPage() {
                   <CardHeader className="flex flex-row items-center gap-3 p-4 pb-2">
                     <GripVertical className="h-4 w-4 text-muted-foreground cursor-grab" />
                     <span className="text-xs font-medium text-muted-foreground">
-                      Scene {index + 1}
+                      {t.studio?.scene} {index + 1}
                     </span>
                     <Badge variant={statusBadgeVariant(scene.status)}>
-                      {scene.status}
+                      {getStatusLabel(scene.status)}
                     </Badge>
                     <div className="ml-auto flex items-center gap-1">
                       <Button
@@ -332,13 +346,13 @@ export function StudioPage() {
                           onChange={(e) =>
                             updateScene(scene.id, { prompt: e.target.value })
                           }
-                          placeholder="Describe this scene..."
+                          placeholder={t.studio?.describeScene}
                           rows={3}
                           className="resize-none bg-slate-900/50"
                         />
                       </div>
                       <div>
-                        <Label className="text-xs">Character</Label>
+                        <Label className="text-xs">{t.form?.character}</Label>
                         <Select
                           value={scene.character_id || ''}
                           onValueChange={(val) =>
@@ -348,10 +362,10 @@ export function StudioPage() {
                           }
                         >
                           <SelectTrigger className="mt-1">
-                            <SelectValue placeholder="None" />
+                            <SelectValue placeholder={t.common?.none} />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="none">None</SelectItem>
+                            <SelectItem value="none">{t.common?.none}</SelectItem>
                             {characters.map((c) => (
                               <SelectItem key={c.id} value={c.id}>
                                 {c.name}
@@ -375,7 +389,7 @@ export function StudioPage() {
               {mergedVideoUrl ? (
                 <Button variant="anime" className="w-full sm:w-auto" onClick={downloadMergedVideo}>
                   <Download className="mr-1 h-3 w-3" />
-                  Download Merged Video
+                  {t.button?.downloadMerged}
                 </Button>
               ) : (
                 <Button
@@ -387,19 +401,19 @@ export function StudioPage() {
                   {isMerging ? (
                     <>
                       <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-                      Merging...
+                      {t.button?.merging}
                     </>
                   ) : (
                     <>
                       <Merge className="mr-1 h-3 w-3" />
-                      Merge & Export
+                      {t.button?.mergeExport}
                     </>
                   )}
                 </Button>
               )}
               <Button variant="outline" className="w-full sm:w-auto" onClick={generateAll}>
                 <Play className="mr-1 h-3 w-3" />
-                Generate All
+                {t.button?.generateAll}
               </Button>
             </div>
           </>
@@ -410,28 +424,28 @@ export function StudioPage() {
       <Dialog open={showCharDialog} onOpenChange={setShowCharDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add Character</DialogTitle>
+            <DialogTitle>{t.button?.addCharacter}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Name</Label>
+              <Label>{t.form?.name}</Label>
               <Input
                 value={newCharName}
                 onChange={(e) => setNewCharName(e.target.value)}
-                placeholder="Character name"
+                placeholder={t.form?.name}
               />
             </div>
             <div className="space-y-2">
-              <Label>Description</Label>
+              <Label>{t.form?.description}</Label>
               <Textarea
                 value={newCharDesc}
                 onChange={(e) => setNewCharDesc(e.target.value)}
-                placeholder="Brief description of the character..."
+                placeholder={t.form?.description}
                 rows={2}
               />
             </div>
             <div className="space-y-2">
-              <Label>Reference Image</Label>
+              <Label>{t.form?.referenceImage}</Label>
               <FileDropZone
                 accept="image"
                 onFileSelect={handleCharImageSelect}
@@ -441,10 +455,10 @@ export function StudioPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowCharDialog(false)}>
-              Cancel
+              {t.common?.cancel}
             </Button>
             <Button onClick={addCharacter} disabled={!newCharName.trim()}>
-              Add Character
+              {t.button?.addCharacter}
             </Button>
           </DialogFooter>
         </DialogContent>

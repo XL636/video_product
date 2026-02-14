@@ -125,7 +125,7 @@ export function Sidebar({ isOpen = true, onToggle }: SidebarProps) {
               {user?.username || 'User'}
             </p>
             <p className="truncate text-[10px] text-muted-foreground">
-              {user?.credits ?? 0} {language === 'zh-CN' ? '积分' : 'credits'}
+              {user?.credits ?? 0} {t.credits || 'credits'}
             </p>
           </div>
           <button

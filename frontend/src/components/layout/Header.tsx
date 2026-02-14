@@ -10,25 +10,34 @@ import {
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { useAuthStore } from '@/stores/authStore'
 import { Settings, LogOut, User } from 'lucide-react'
-
-const pageTitles: Record<string, string> = {
-  '/': 'Dashboard',
-  '/create': 'Create',
-  '/studio': 'Story Studio',
-  '/gallery': 'Gallery',
-  '/settings': 'Settings',
-}
+import { useLanguage } from '@/hooks/useLanguage'
 
 export function Header() {
   const location = useLocation()
   const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
+  const { t } = useLanguage()
+
+  const pageTitles: Record<string, string> = {
+    '/': t.pages?.dashboard || 'Dashboard',
+    '/create': t.pages?.create || 'Create',
+    '/studio': t.pages?.studio || 'Story Studio',
+    '/gallery': t.pages?.gallery || 'Gallery',
+    '/settings': t.pages?.settings || 'Settings',
+  }
 
   const pageTitle = pageTitles[location.pathname] || 'AnimeGen Studio'
 
   const breadcrumbParts = location.pathname
     .split('/')
     .filter(Boolean)
+
+  const breadcrumbLabels: Record<string, string> = {
+    create: t.pages?.create || 'Create',
+    studio: t.pages?.studio || 'Studio',
+    gallery: t.pages?.gallery || 'Gallery',
+    settings: t.pages?.settings || 'Settings',
+  }
 
   return (
     <header className="flex h-14 items-center justify-between border-b border-slate-800 px-6">
@@ -37,12 +46,12 @@ export function Header() {
         {breadcrumbParts.length > 0 && (
           <div className="ml-4 flex items-center gap-1 text-xs text-muted-foreground">
             <Link to="/" className="hover:text-foreground transition-colors">
-              Home
+              {t.common?.home || 'Home'}
             </Link>
             {breadcrumbParts.map((part, idx) => (
               <span key={idx} className="flex items-center gap-1">
                 <span>/</span>
-                <span className="capitalize">{part}</span>
+                <span>{breadcrumbLabels[part] || part}</span>
               </span>
             ))}
           </div>
@@ -71,13 +80,13 @@ export function Header() {
           <DropdownMenuItem asChild>
             <Link to="/settings" className="flex items-center gap-2 cursor-pointer">
               <User className="h-4 w-4" />
-              Profile
+              {t.header?.profile || 'Profile'}
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Link to="/settings" className="flex items-center gap-2 cursor-pointer">
               <Settings className="h-4 w-4" />
-              Settings
+              {t.header?.settings || 'Settings'}
             </Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
@@ -86,7 +95,7 @@ export function Header() {
             onClick={logout}
           >
             <LogOut className="h-4 w-4" />
-            Log out
+            {t.header?.logOut || 'Log out'}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

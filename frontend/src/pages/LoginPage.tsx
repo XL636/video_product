@@ -25,7 +25,7 @@ export function LoginPage() {
       await login(email, password)
       navigate('/')
     } catch {
-      toast({ title: 'Invalid email or password', variant: 'destructive' })
+      toast({ title: t.messages?.invalidCredentials, variant: 'destructive' })
     }
   }
 

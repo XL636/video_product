@@ -1,5 +1,6 @@
 import { Play, Download, Trash2, RefreshCw } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
+import { zhCN as zhCNLocale } from 'date-fns/locale'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -73,6 +74,7 @@ export function VideoCard({
         <p className="mb-3 text-xs text-muted-foreground">
           {formatDistanceToNow(new Date(video.created_at), {
             addSuffix: true,
+            locale: language === 'zh-CN' ? zhCNLocale : undefined,
           })}
         </p>
         <div className="flex gap-1">

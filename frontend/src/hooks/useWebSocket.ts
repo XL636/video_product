@@ -60,7 +60,7 @@ export function useWebSocket() {
     const wsUrl =
       import.meta.env.VITE_WS_URL || 'ws://localhost:8000'
 
-    const ws = new WebSocket(`${wsUrl}/ws/jobs/${user.id}`)
+    const ws = new WebSocket(`${wsUrl}/api/v1/ws/jobs/${user.id}`)
 
     ws.onopen = () => {
       reconnectAttemptsRef.current = 0

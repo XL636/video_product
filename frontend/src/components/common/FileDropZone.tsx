@@ -4,6 +4,7 @@ import { Upload, X, FileVideo, Image } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
+import { useLanguage } from '@/hooks/useLanguage'
 
 interface FileDropZoneProps {
   accept: 'image' | 'video'
@@ -22,6 +23,7 @@ export function FileDropZone({
 }: FileDropZoneProps) {
   const [preview, setPreview] = useState<string | null>(null)
   const [fileName, setFileName] = useState<string | null>(null)
+  const { t } = useLanguage()
 
   const acceptConfig =
     accept === 'image'
@@ -94,7 +96,7 @@ export function FileDropZone({
           <div>
             <p className="text-sm font-medium">{fileName}</p>
             <p className="text-xs text-muted-foreground">
-              {accept === 'video' ? 'Video' : 'Image'} selected
+              {accept === 'video' ? t.fileUpload?.videoSelected : t.fileUpload?.imageSelected}
             </p>
           </div>
           <Button
@@ -111,11 +113,13 @@ export function FileDropZone({
           <Upload className="mb-3 h-10 w-10 text-muted-foreground" />
           <p className="mb-1 text-sm font-medium">
             {isDragActive
-              ? 'Drop the file here'
-              : `Drag & drop ${accept === 'image' ? 'an image' : 'a video'} here`}
+              ? t.fileUpload?.dropHere
+              : accept === 'image'
+                ? t.fileUpload?.dragImage
+                : t.fileUpload?.dragVideo}
           </p>
           <p className="text-xs text-muted-foreground">
-            or click to browse files
+            {t.fileUpload?.clickToBrowse}
           </p>
         </>
       )}
@@ -124,7 +128,7 @@ export function FileDropZone({
         <div className="mt-4 w-full">
           <Progress value={uploadProgress} className="h-1.5" />
           <p className="mt-1 text-center text-xs text-muted-foreground">
-            Uploading... {uploadProgress}%
+            {t.fileUpload?.uploading} {uploadProgress}%
           </p>
         </div>
       )}

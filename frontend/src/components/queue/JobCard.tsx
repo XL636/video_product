@@ -1,55 +1,59 @@
 import { formatDistanceToNow } from 'date-fns'
+import { zhCN as zhCNLocale } from 'date-fns/locale'
 import { X, Clock, Loader2, CheckCircle2, XCircle } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { truncate } from '@/lib/utils'
 import type { Job } from '@/types'
+import { useLanguage } from '@/hooks/useLanguage'
 
 interface JobCardProps {
   job: Job
   onRemove: (jobId: string) => void
 }
 
-const statusConfig: Record<
-  Job['status'],
-  { icon: React.ReactNode; label: string; variant: 'default' | 'secondary' | 'destructive' | 'success' | 'warning' | 'info' }
-> = {
-  queued: {
-    icon: <Clock className="h-3 w-3" />,
-    label: 'Queued',
-    variant: 'secondary',
-  },
-  submitted: {
-    icon: <Clock className="h-3 w-3" />,
-    label: 'Submitted',
-    variant: 'info',
-  },
-  processing: {
-    icon: <Loader2 className="h-3 w-3 animate-spin" />,
-    label: 'Processing',
-    variant: 'warning',
-  },
-  completed: {
-    icon: <CheckCircle2 className="h-3 w-3" />,
-    label: 'Completed',
-    variant: 'success',
-  },
-  failed: {
-    icon: <XCircle className="h-3 w-3" />,
-    label: 'Failed',
-    variant: 'destructive',
-  },
-}
-
-const typeLabels: Record<string, string> = {
-  img2vid: 'Img2Vid',
-  txt2vid: 'Txt2Vid',
-  vid2anime: 'Vid2Anime',
-  story: 'Story',
-}
-
 export function JobCard({ job, onRemove }: JobCardProps) {
+  const { language, t } = useLanguage()
+
+  const statusConfig: Record<
+    Job['status'],
+    { icon: React.ReactNode; label: string; variant: 'default' | 'secondary' | 'destructive' | 'success' | 'warning' | 'info' }
+  > = {
+    queued: {
+      icon: <Clock className="h-3 w-3" />,
+      label: t.status?.queued || 'Queued',
+      variant: 'secondary',
+    },
+    submitted: {
+      icon: <Clock className="h-3 w-3" />,
+      label: t.status?.submitted || 'Submitted',
+      variant: 'info',
+    },
+    processing: {
+      icon: <Loader2 className="h-3 w-3 animate-spin" />,
+      label: t.status?.processing || 'Processing',
+      variant: 'warning',
+    },
+    completed: {
+      icon: <CheckCircle2 className="h-3 w-3" />,
+      label: t.status?.completed || 'Completed',
+      variant: 'success',
+    },
+    failed: {
+      icon: <XCircle className="h-3 w-3" />,
+      label: t.status?.failed || 'Failed',
+      variant: 'destructive',
+    },
+  }
+
+  const typeLabels: Record<string, string> = {
+    img2vid: t.videoType?.img2vid || 'Img2Vid',
+    txt2vid: t.videoType?.txt2vid || 'Txt2Vid',
+    vid2anime: t.videoType?.vid2anime || 'Vid2Anime',
+    story: t.generation?.story || 'Story',
+  }
+
   const config = statusConfig[job.status]
   const isActive = job.status === 'processing' || job.status === 'submitted' || job.status === 'queued'
 
@@ -80,7 +84,10 @@ export function JobCard({ job, onRemove }: JobCardProps) {
       </p>
 
       <p className="mb-2 text-[10px] text-muted-foreground">
-        {formatDistanceToNow(new Date(job.created_at), { addSuffix: true })}
+        {formatDistanceToNow(new Date(job.created_at), {
+          addSuffix: true,
+          locale: language === 'zh-CN' ? zhCNLocale : undefined,
+        })}
       </p>
 
       {isActive && (

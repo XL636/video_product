@@ -26,13 +26,18 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true })
         try {
           const response = await api.post('/auth/login', { email, password })
-          const { access_token, user } = response.data
+          const { access_token } = response.data
           set({
             token: access_token,
-            user,
             isAuthenticated: true,
-            isLoading: false,
           })
+          // Fetch user profile
+          try {
+            const meRes = await api.get('/auth/me')
+            set({ user: meRes.data, isLoading: false })
+          } catch {
+            set({ isLoading: false })
+          }
         } catch (error) {
           set({ isLoading: false })
           throw error
@@ -47,13 +52,18 @@ export const useAuthStore = create<AuthState>()(
             username,
             password,
           })
-          const { access_token, user } = response.data
+          const { access_token } = response.data
           set({
             token: access_token,
-            user,
             isAuthenticated: true,
-            isLoading: false,
           })
+          // Fetch user profile
+          try {
+            const meRes = await api.get('/auth/me')
+            set({ user: meRes.data, isLoading: false })
+          } catch {
+            set({ isLoading: false })
+          }
         } catch (error) {
           set({ isLoading: false })
           throw error

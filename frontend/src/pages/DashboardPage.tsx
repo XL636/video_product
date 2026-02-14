@@ -53,8 +53,11 @@ export function DashboardPage() {
 
   useEffect(() => {
     api
-      .get<Video[]>('/videos', { params: { limit: 6 } })
-      .then((res) => setRecentVideos(res.data))
+      .get('/gallery', { params: { page_size: 6 } })
+      .then((res) => {
+        const data = res.data.items || res.data.data || res.data || []
+        setRecentVideos(Array.isArray(data) ? data : [])
+      })
       .catch(() => {
         // ignore errors on initial load
       })
