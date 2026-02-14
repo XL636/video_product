@@ -10,12 +10,6 @@ import { SettingsPage } from '@/pages/SettingsPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { RegisterPage } from '@/pages/RegisterPage'
 
-// Import i18n language support
-import { useLanguage } from '@/hooks/useLanguage'
-
-// Import zh-CN language support
-import { useLanguage, Language } from '@/i18n/i18n/useLanguage'
-
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

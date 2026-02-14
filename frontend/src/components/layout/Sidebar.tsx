@@ -9,18 +9,20 @@ import {
   LogOut,
   Menu,
   X,
+  Globe,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
 import { useAuthStore } from '@/stores/authStore'
+import { useLanguage } from '@/hooks/useLanguage'
 
-const navItems = [
-  { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/create', icon: Wand2, label: 'Create' },
-  { to: '/studio', icon: Film, label: 'Studio' },
-  { to: '/gallery', icon: Image, label: 'Gallery' },
-  { to: '/settings', icon: Settings, label: 'Settings' },
+export const navItems = (t: any) => [
+  { to: '/', icon: LayoutDashboard, label: t.nav?.dashboard || 'Dashboard' },
+  { to: '/create', icon: Wand2, label: t.nav?.create || 'Create' },
+  { to: '/studio', icon: Film, label: t.nav?.studio || 'Studio' },
+  { to: '/gallery', icon: Image, label: t.nav?.gallery || 'Gallery' },
+  { to: '/settings', icon: Settings, label: t.nav?.settings || 'Settings' },
 ]
 
 interface SidebarProps {
@@ -31,6 +33,7 @@ interface SidebarProps {
 export function Sidebar({ isOpen = true, onToggle }: SidebarProps) {
   const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
+  const { language, toggleLanguage, t } = useLanguage()
 
   return (
     <>
@@ -70,7 +73,7 @@ export function Sidebar({ isOpen = true, onToggle }: SidebarProps) {
         <Separator />
 
         <nav className="flex-1 space-y-1 p-3">
-          {navItems.map((item) => (
+          {navItems(t).map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
@@ -95,6 +98,19 @@ export function Sidebar({ isOpen = true, onToggle }: SidebarProps) {
             </NavLink>
           ))}
         </nav>
+
+        <Separator />
+
+        {/* Language Switcher */}
+        <div className="px-4 py-2">
+          <button
+            onClick={toggleLanguage}
+            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-all hover:bg-slate-900 hover:text-foreground"
+          >
+            <Globe className="h-4 w-4" />
+            <span>{language === 'zh-CN' ? '中文' : 'English'}</span>
+          </button>
+        </div>
 
         <Separator />
 
@@ -125,20 +141,31 @@ export function Sidebar({ isOpen = true, onToggle }: SidebarProps) {
 }
 
 export function MobileHeader({ onToggle }: { onToggle: () => void }) {
+  const { toggleLanguage } = useLanguage()
+
   return (
-    <div className="flex items-center gap-3 p-4 border-b border-slate-800 lg:hidden">
-      <button
-        onClick={onToggle}
-        className="rounded-md p-1.5 text-muted-foreground hover:bg-slate-900 hover:text-foreground"
-      >
-        <Menu className="h-5 w-5" />
-      </button>
+    <div className="flex items-center justify-between gap-3 p-4 border-b border-slate-800 lg:hidden">
       <div className="flex items-center gap-2">
-        <div className="flex h-7 w-7 items-center justify-center rounded-lg anime-gradient">
-          <Wand2 className="h-3.5 w-3.5 text-white" />
+        <button
+          onClick={onToggle}
+          className="rounded-md p-1.5 text-muted-foreground hover:bg-slate-900 hover:text-foreground"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+        <div className="flex items-center gap-2">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg anime-gradient">
+            <Wand2 className="h-3.5 w-3.5 text-white" />
+          </div>
+          <span className="font-bold anime-gradient-text">AnimeGen</span>
         </div>
-        <span className="font-bold anime-gradient-text">AnimeGen</span>
       </div>
+      <button
+        onClick={toggleLanguage}
+        className="rounded-md p-1.5 text-muted-foreground hover:bg-slate-900 hover:text-foreground"
+        title="Switch Language"
+      >
+        <Globe className="h-5 w-5" />
+      </button>
     </div>
   )
 }

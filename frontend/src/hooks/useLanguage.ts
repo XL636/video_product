@@ -1,59 +1,33 @@
-import { useLanguage, Language } from '@/hooks/useLanguage'
-import { motion } from 'framer-motion'
+import { useState } from 'react'
+import { en } from '@/i18n/en'
+import { zhCN } from '@/i18n/zh-CN'
 
-export const languages = {
-  'en-US': {
-    appName: 'AnimeGen Studio',
-    appTitle: 'AnimeGen Studio',
-    loading: 'Loading...',
-    save: 'Save',
-    cancel: 'Cancel',
-    delete: 'Delete',
-    edit: 'Edit',
-    search: 'Search',
-    filter: 'Filter',
-    download: 'Download',
-    upload: 'Upload',
-    settings: 'Settings',
-    logout: 'Logout',
-    back: 'Back',
-    next: 'Next',
-    done: 'Done',
-    error: 'Error',
-    success: 'Success',
-  },
-  'zh-CN': {
-    appName: '动漫视频生成器',
-    appTitle: '动漫视频生成器',
-    loading: '加载中...',
-    save: '保存',
-    cancel: '取消',
-    delete: '删除',
-    edit: '编辑',
-    search: '搜索',
-    filter: '筛选',
-    download: '下载',
-    upload: '上传',
-    settings: '设置',
-    logout: '退出登录',
-    back: '返回',
-    next: '下一步',
-    done: '完成',
-    error: '错误',
-    success: '成功',
-  },
+export type Language = 'en-US' | 'zh-CN'
+
+export type Translations = typeof en
+
+export const languages: Record<Language, Translations> = {
+  'en-US': en,
+  'zh-CN': zhCN,
 }
 
 export function useLanguage() {
-  const [language, setLanguage] = useLanguage()
+  const [language, setLanguage] = useState<Language>(() => {
+    const saved = localStorage.getItem('language') as Language
+    if (saved === 'en-US' || saved === 'zh-CN') {
+      return saved
+    }
+    return 'zh-CN' // 默认中文
+  })
 
-  // 验证语言是否在支持列表中
-  if (!languages[language]) {
-    console.error(`Language '${language}' is not supported. Defaulting to 'en-US'.`)
-    return languages['en-US']
+  const toggleLanguage = () => {
+    const newLang: Language = language === 'en-US' ? 'zh-CN' : 'en-US'
+    setLanguage(newLang)
+    localStorage.setItem('language', newLang)
+    window.location.reload() // 重新加载页面应用语言
   }
 
-  return [language, setLanguage]
-}
+  const t = languages[language]
 
-export default Language
+  return { language, setLanguage, toggleLanguage, t }
+}
