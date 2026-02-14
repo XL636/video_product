@@ -6,6 +6,8 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models import Base
+# Character is imported from character module, not defined here
+# from app.models.character import Character  # noqa: F401
 
 
 class Story(Base):

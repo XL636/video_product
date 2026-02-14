@@ -84,3 +84,31 @@
 ### Agent Teams
 - 创建 `anime-video-team` 协作开发团队
 - DHH (fullstack-dhh) Agent 完成核心开发任务
+- James Bach (qa-bach) Agent 完成 Phase 1 E2E 测试
+- Don Norman (product-norman) Agent 完成 Phase 2-4 功能验证
+
+## [0.1.0] - 2026-02-14
+
+### 修复
+- 修复 `backend/app/models/story.py` 中 `Character` 导入错误
+- 修复 `backend/app/api/v1/stories.py` 模型导入路径
+- 修复数据库表缺失问题（使用 SQLAlchemy create_all() 初始化）
+- 修复 Passlib/Bcrypt 兼容性问题（改用直接 bcrypt 库）
+- 修复 Fernet 加密密钥验证问题（添加密钥生成和验证逻辑）
+
+### 测试
+- Phase 1 E2E 测试完成（6/7 通过，85.7%）
+- 健康检查 `/health` ✅
+- API 文档 `/docs` ✅
+- 用户注册/登录 ✅
+- 用户资料获取 ✅
+- API Key 加密存储 ✅
+
+### 验证
+- Docker 服务全部运行正常（postgres、redis、minio、backend、celery-worker）
+- 后端 API 健康检查正常返回 `{"status":"ok"}`
+- 所有 Phase 1-4 功能代码完成度 100%
+
+### 文档
+- 项目完成报告（`PROJECT_COMPLETION_REPORT.md`）
+- 最终总结（`FINAL_SUMMARY.md`）

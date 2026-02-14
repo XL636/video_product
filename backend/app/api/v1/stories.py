@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.deps import get_current_user
-from app.models.story import Character, Scene, Story
+from app.models import Character, Scene, Story
 from app.models.user import User
 from app.schemas.generation import StoryGenerationRequest
 from app.tasks.generation_tasks import merge_story, process_story_generation
