@@ -5,7 +5,7 @@
 格式遵循 [Keep a Changelog](https://keepachangelog.com/)，
 本项目遵循 [语义化版本控制](https://semver.org/)。
 
-## [0.1.0] - 2026-02-13
+## [0.2.0] - 2026-02-14
 
 ### 新增功能
 - 初始化全栈架构项目结构
