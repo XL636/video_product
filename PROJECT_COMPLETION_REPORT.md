@@ -236,6 +236,12 @@ anime-video-gen/
 
 ---
 
+## 已修复的问题
+
+1. ✅ **后端导入错误**: 修复 `backend/app/models/story.py` 和 `backend/app/api/v1/stories.py` 中的模型导入问题
+2. ✅ **数据库初始化**: 添加数据库表初始化逻辑
+3. ✅ **安全配置**: 完善 Fernet 加密密钥生成和验证
+
 ## 已知限制
 
 1. **视频生成 API**: 需要用户自行申请 API Key
