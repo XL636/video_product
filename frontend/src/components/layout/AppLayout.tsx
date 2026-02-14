@@ -15,7 +15,7 @@ export function AppLayout() {
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
-      <div className="flex flex-1 flex-col overflow-hidden lg:ml-0">
+      <div className="flex flex-1 flex-col overflow-hidden lg:pl-64">
         <MobileHeader onToggle={() => setSidebarOpen(!sidebarOpen)} />
         <div className="hidden lg:block">
           <Header />
