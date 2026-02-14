@@ -18,6 +18,7 @@ import { useSettingsStore } from '@/stores/settingsStore'
 import { toast } from '@/components/ui/toast'
 import api from '@/lib/api'
 import type { StylePreset, Job } from '@/types'
+import { useLanguage } from '@/hooks/useLanguage'
 
 export function ImageToVideoForm() {
   const [prompt, setPrompt] = useState('')
@@ -32,6 +33,7 @@ export function ImageToVideoForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { isUploading, progress, url: uploadedUrl, upload } = useFileUpload()
   const addJob = useJobStore((state) => state.addJob)
+  const { t } = useLanguage()
 
   const handleFileSelect = async (file: File) => {
     await upload(file)
@@ -39,11 +41,11 @@ export function ImageToVideoForm() {
 
   const handleGenerate = async () => {
     if (!uploadedUrl) {
-      toast({ title: 'Please upload an image first', variant: 'destructive' })
+      toast({ title: t.messages?.uploadImageFirst, variant: 'destructive' })
       return
     }
     if (!prompt.trim()) {
-      toast({ title: 'Please enter a motion prompt', variant: 'destructive' })
+      toast({ title: t.messages?.enterMotionPrompt, variant: 'destructive' })
       return
     }
 
@@ -65,10 +67,14 @@ export function ImageToVideoForm() {
 
       // Add job to store with complete data
       addJob(jobResponse.data)
-      toast({ title: 'Job submitted successfully!', variant: 'success' })
+      toast({ title: t.messages?.jobSubmitted, variant: 'success' })
       setPrompt('')
-    } catch {
-      toast({ title: 'Failed to submit job', variant: 'destructive' })
+    } catch (err: any) {
+      const detail = err?.response?.data?.detail
+      const msg = detail?.includes('No API key')
+        ? t.messages?.noApiKey?.replace('{provider}', provider) || detail
+        : detail || t.messages?.jobFailed
+      toast({ title: msg, variant: 'destructive' })
     } finally {
       setIsSubmitting(false)
     }
@@ -86,49 +92,50 @@ export function ImageToVideoForm() {
       <PromptEditor
         value={prompt}
         onChange={setPrompt}
-        label="Motion Description"
-        placeholder="Describe how the image should animate... e.g., 'camera slowly pans right, cherry blossoms falling gently'"
+        label={t.form?.motionDescription}
+        placeholder={t.promptEditor?.motionPlaceholder}
       />
 
       <StylePresetSelector value={stylePreset} onChange={setStylePreset} />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="space-y-2">
-          <Label>Provider</Label>
+          <Label>{t.form?.provider}</Label>
           <Select value={provider} onValueChange={setProvider}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="kling">Kling AI</SelectItem>
-              <SelectItem value="hailuo">Hailuo</SelectItem>
+              <SelectItem value="jimeng">即梦 Jimeng</SelectItem>
+              <SelectItem value="vidu">Vidu</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <div className="space-y-2">
-          <Label>Duration</Label>
+          <Label>{t.form?.duration}</Label>
           <Select value={duration} onValueChange={setDuration}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="5">5 seconds</SelectItem>
-              <SelectItem value="10">10 seconds</SelectItem>
+              <SelectItem value="5">{t.duration?.fiveSeconds}</SelectItem>
+              <SelectItem value="10">{t.duration?.tenSeconds}</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <div className="space-y-2">
-          <Label>Aspect Ratio</Label>
+          <Label>{t.form?.aspectRatio}</Label>
           <Select value={aspectRatio} onValueChange={setAspectRatio}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="16:9">16:9 Landscape</SelectItem>
-              <SelectItem value="9:16">9:16 Portrait</SelectItem>
-              <SelectItem value="1:1">1:1 Square</SelectItem>
+              <SelectItem value="16:9">{t.aspectRatio?.landscape}</SelectItem>
+              <SelectItem value="9:16">{t.aspectRatio?.portrait}</SelectItem>
+              <SelectItem value="1:1">{t.aspectRatio?.square}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -142,7 +149,7 @@ export function ImageToVideoForm() {
         disabled={isSubmitting || isUploading || !uploadedUrl}
       >
         <Sparkles className="h-4 w-4" />
-        {isSubmitting ? 'Generating...' : 'Generate Video'}
+        {isSubmitting ? t.button?.generating : t.button?.generateVideo}
       </Button>
     </div>
   )

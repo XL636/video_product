@@ -22,7 +22,7 @@ class Job(Base):
     )  # img2vid, txt2vid, vid2anime, story
     provider: Mapped[str] = mapped_column(
         String(20), nullable=False
-    )  # kling, hailuo, comfyui
+    )  # kling, jimeng, vidu, comfyui
     status: Mapped[str] = mapped_column(
         String(20), nullable=False, default="queued", index=True
     )  # queued, submitted, processing, completed, failed

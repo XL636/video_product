@@ -10,7 +10,7 @@ from app.security import encrypt_api_key
 
 router = APIRouter()
 
-ALL_PROVIDERS = ["kling", "hailuo", "comfyui"]
+ALL_PROVIDERS = ["kling", "jimeng", "vidu", "comfyui"]
 
 
 @router.get("/api-keys", response_model=ApiKeyListResponse)

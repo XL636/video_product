@@ -31,39 +31,42 @@ export function SettingsPage() {
     setDefaultProvider,
     setDefaultStylePreset,
   } = useSettingsStore()
-  const { language, t } = useLanguage()
+  const { t } = useLanguage()
 
   const providers: ProviderConfig[] = [
     {
       key: 'kling',
       label: 'Kling AI',
-      description: language === 'zh-CN' ? '高质量图片和文字转视频生成。' : 'High-quality image and text to video generation.',
+      description: t.settings?.klingDesc || '',
     },
     {
-      key: 'hailuo',
-      label: 'Hailuo',
-      description: language === 'zh-CN' ? '快速动漫风格视频生成。' : 'Fast anime-style video generation.',
+      key: 'jimeng',
+      label: '即梦 Jimeng',
+      description: t.settings?.jimengDesc || '',
+    },
+    {
+      key: 'vidu',
+      label: 'Vidu 生数科技',
+      description: t.settings?.viduDesc || '',
     },
     {
       key: 'comfyui',
       label: 'ComfyUI',
-      description: language === 'zh-CN' ? '本地视频转动漫转换流程。' : 'Local video-to-anime conversion pipeline.',
+      description: t.settings?.comfyuiDesc || '',
     },
   ]
 
   return (
     <div className="mx-auto max-w-3xl p-6">
-      <h2 className="mb-6 text-xl font-semibold">{t.nav?.settings || 'Settings'}</h2>
+      <h2 className="mb-6 text-xl font-semibold">{t.nav?.settings}</h2>
 
       {/* API Keys */}
       <div className="mb-8 space-y-4">
         <h3 className="text-lg font-medium">
-          {language === 'zh-CN' ? 'API 密钥' : 'API Keys'}
+          {t.settings?.apiKeys}
         </h3>
         <p className="text-sm text-muted-foreground">
-          {language === 'zh-CN'
-            ? '配置您的提供商 API 密钥以启用视频生成。'
-            : 'Configure your provider API keys to enable video generation.'}
+          {t.settings?.apiKeysDesc}
         </p>
         <div className="space-y-4">
           {providers.map((provider) => (
@@ -77,26 +80,27 @@ export function SettingsPage() {
       {/* Defaults */}
       <div className="space-y-6">
         <h3 className="text-lg font-medium">
-          {language === 'zh-CN' ? '默认设置' : 'Defaults'}
+          {t.settings?.defaults}
         </h3>
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label>{language === 'zh-CN' ? '默认提供商' : 'Default Provider'}</Label>
+            <Label>{t.settings?.defaultProvider}</Label>
             <Select value={defaultProvider} onValueChange={setDefaultProvider}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="kling">Kling AI</SelectItem>
-                <SelectItem value="hailuo">Hailuo</SelectItem>
-                <SelectItem value="comfyui">ComfyUI ({language === 'zh-CN' ? '本地' : 'Local'})</SelectItem>
+                <SelectItem value="jimeng">即梦 Jimeng</SelectItem>
+                <SelectItem value="vidu">Vidu</SelectItem>
+                <SelectItem value="comfyui">ComfyUI ({t.settings?.local})</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-2">
-            <Label>{language === 'zh-CN' ? '默认风格预设' : 'Default Style Preset'}</Label>
+            <Label>{t.settings?.defaultStylePreset}</Label>
             <Select
               value={defaultStylePreset}
               onValueChange={(val) =>
@@ -107,11 +111,11 @@ export function SettingsPage() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ghibli">{t.styles?.ghibli || 'Ghibli'}</SelectItem>
-                <SelectItem value="shonen">{t.styles?.shonen || 'Shonen'}</SelectItem>
-                <SelectItem value="seinen">{t.styles?.seinen || 'Seinen'}</SelectItem>
-                <SelectItem value="cyberpunk_anime">{t.styles?.cyberpunk || 'Cyberpunk'}</SelectItem>
-                <SelectItem value="chibi">{t.styles?.chibi || 'Chibi'}</SelectItem>
+                <SelectItem value="ghibli">{t.styles?.ghibli}</SelectItem>
+                <SelectItem value="shonen">{t.styles?.shonen}</SelectItem>
+                <SelectItem value="seinen">{t.styles?.seinen}</SelectItem>
+                <SelectItem value="cyberpunk_anime">{t.styles?.cyberpunk}</SelectItem>
+                <SelectItem value="chibi">{t.styles?.chibi}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -122,7 +126,7 @@ export function SettingsPage() {
 }
 
 function ApiKeyCard({ provider }: { provider: ProviderConfig }) {
-  const { language } = useLanguage()
+  const { t } = useLanguage()
   const [apiKey, setApiKey] = useState('')
   const [isConfigured, setIsConfigured] = useState(false)
   const [showKey, setShowKey] = useState(false)
@@ -154,14 +158,12 @@ function ApiKeyCard({ provider }: { provider: ProviderConfig }) {
       setApiKey('')
       setShowKey(false)
       toast({
-        title: language === 'zh-CN'
-          ? `${provider.label} API 密钥已保存`
-          : `${provider.label} API key saved`,
+        title: `${provider.label} ${t.messages?.apiKeySaved}`,
         variant: 'success',
       })
     } catch {
       toast({
-        title: language === 'zh-CN' ? '保存 API 密钥失败' : 'Failed to save API key',
+        title: t.messages?.apiKeySaveFailed,
         variant: 'destructive',
       })
     } finally {
@@ -175,14 +177,12 @@ function ApiKeyCard({ provider }: { provider: ProviderConfig }) {
       setIsConfigured(false)
       setApiKey('')
       toast({
-        title: language === 'zh-CN'
-          ? `${provider.label} API 密钥已移除`
-          : `${provider.label} API key removed`,
+        title: `${provider.label} ${t.messages?.apiKeyRemoved}`,
         variant: 'default',
       })
     } catch {
       toast({
-        title: language === 'zh-CN' ? '移除 API 密钥失败' : 'Failed to remove API key',
+        title: t.messages?.apiKeyRemoveFailed,
         variant: 'destructive',
       })
     }
@@ -201,7 +201,7 @@ function ApiKeyCard({ provider }: { provider: ProviderConfig }) {
           </div>
           {isConfigured && (
             <span className="ml-auto rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-medium text-emerald-400">
-              {language === 'zh-CN' ? '已配置' : 'Configured'}
+              {t.settings?.configured}
             </span>
           )}
         </div>
@@ -213,7 +213,7 @@ function ApiKeyCard({ provider }: { provider: ProviderConfig }) {
               type={showKey ? 'text' : 'password'}
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
-              placeholder={isConfigured ? '********' : (language === 'zh-CN' ? '输入 API 密钥...' : 'Enter API key...')}
+              placeholder={isConfigured ? '********' : t.settings?.enterApiKey}
               className="pr-9"
             />
             <button
@@ -234,12 +234,12 @@ function ApiKeyCard({ provider }: { provider: ProviderConfig }) {
             size="sm"
           >
             <Save className="mr-1 h-3 w-3" />
-            {language === 'zh-CN' ? '保存' : 'Save'}
+            {t.common?.save}
           </Button>
           {isConfigured && (
             <Button variant="destructive" size="sm" onClick={handleDelete}>
               <Trash2 className="mr-1 h-3 w-3" />
-              {language === 'zh-CN' ? '删除' : 'Delete'}
+              {t.common?.delete}
             </Button>
           )}
         </div>

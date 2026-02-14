@@ -1,4 +1,4 @@
-// 英文翻译
+// English translations
 
 export const en = {
   common: {
@@ -20,6 +20,9 @@ export const en = {
     done: 'Done',
     error: 'Error',
     success: 'Success',
+    home: 'Home',
+    none: 'None',
+    characters: 'characters',
   },
 
   nav: {
@@ -27,7 +30,7 @@ export const en = {
     create: 'Create',
     studio: 'Studio',
     gallery: 'Gallery',
-    settings: 'Settings',
+    settings: 'Model Settings',
   },
 
   pages: {
@@ -35,9 +38,9 @@ export const en = {
     register: 'Register',
     dashboard: 'Dashboard',
     create: 'Create',
-    studio: 'Studio',
+    studio: 'Story Studio',
     gallery: 'Gallery',
-    settings: 'Settings',
+    settings: 'Model Settings',
   },
 
   form: {
@@ -49,13 +52,23 @@ export const en = {
     style: 'Style',
     duration: 'Duration',
     apiKey: 'API Key',
+    provider: 'Provider',
+    aspectRatio: 'Aspect Ratio',
+    styleStrength: 'Style Strength',
+    stylePreset: 'Style Preset',
+    name: 'Name',
+    description: 'Description',
+    referenceImage: 'Reference Image',
+    character: 'Character',
+    motionDescription: 'Motion Description',
+    sceneDescription: 'Scene Description',
   },
 
   generation: {
     img2vid: 'Image to Video',
     txt2vid: 'Text to Video',
     vid2anime: 'Video to Anime',
-    story: 'Story',
+    story: 'Story Mode',
   },
 
   status: {
@@ -63,10 +76,12 @@ export const en = {
     processing: 'Processing',
     completed: 'Completed',
     failed: 'Failed',
+    submitted: 'Submitted',
+    draft: 'Draft',
   },
 
   videoType: {
-    all: 'All',
+    all: 'All Types',
     img2vid: 'Image Videos',
     txt2vid: 'Text Videos',
     vid2anime: 'Anime Videos',
@@ -74,10 +89,15 @@ export const en = {
 
   styles: {
     ghibli: 'Ghibli',
+    ghibliDesc: 'Soft, painterly watercolor style',
     shonen: 'Shonen',
+    shonenDesc: 'Bold, dynamic action style',
     seinen: 'Seinen',
+    seinenDesc: 'Mature, detailed realistic style',
     cyberpunk: 'Cyberpunk',
+    cyberpunkDesc: 'Neon-lit futuristic aesthetic',
     chibi: 'Chibi',
+    chibiDesc: 'Cute, super-deformed style',
   },
 
   button: {
@@ -94,6 +114,20 @@ export const en = {
     download: 'Download',
     merge: 'Merge',
     add: 'Add',
+    generateVideo: 'Generate Video',
+    generating: 'Generating...',
+    convertToAnime: 'Convert to Anime',
+    converting: 'Converting...',
+    enhancePrompt: 'Enhance with anime keywords',
+    addScene: 'Add Scene',
+    addFirstScene: 'Add First Scene',
+    addCharacter: 'Add Character',
+    generateAll: 'Generate All',
+    mergeExport: 'Merge & Export',
+    merging: 'Merging...',
+    downloadMerged: 'Download Merged Video',
+    startCreating: 'Start Creating',
+    viewAll: 'View all',
   },
 
   messages: {
@@ -104,7 +138,120 @@ export const en = {
     generationComplete: 'Generation complete',
     deleteConfirm: 'Are you sure you want to delete?',
     saveSuccess: 'Settings saved',
+    invalidCredentials: 'Invalid email or password',
+    uploadImageFirst: 'Please upload an image first',
+    uploadVideoFirst: 'Please upload a video first',
+    enterMotionPrompt: 'Please enter a motion prompt',
+    enterPrompt: 'Please enter a prompt',
+    jobSubmitted: 'Job submitted successfully!',
+    jobFailed: 'Failed to submit job',
+    sceneNeedsPrompt: 'Scene needs a prompt',
+    sceneGenStarted: 'Scene generation started!',
+    sceneGenFailed: 'Failed to generate scene',
+    noScenesToGenerate: 'No scenes to generate',
+    noCompletedScenes: 'No completed scenes to merge',
+    mergeStarted: 'Merge started',
+    mergingScenes: 'Merging {count} scenes...',
+    saveStoryFirst: 'Please save your story first',
+    saveStoryDesc: 'Merge requires a saved story. Create a new story in the Stories tab.',
+    mergeFailed: 'Failed to start merge',
+    videoDeleted: 'Video deleted',
+    deleteVideoFailed: 'Failed to delete video',
+    regenQueued: 'Regeneration queued',
+    regenerating: 'Regenerating',
+    apiKeySaved: 'API key saved',
+    apiKeySaveFailed: 'Failed to save API key',
+    apiKeyRemoved: 'API key removed',
+    apiKeyRemoveFailed: 'Failed to remove API key',
+    noApiKey: 'No API key configured for {provider}. Please add it in Settings.',
+    passwordMismatch: 'Passwords do not match',
+    passwordTooShort: 'Password must be at least 6 characters',
+    registrationFailed: 'Registration failed. Please try again.',
   },
+
+  create: {
+    img2vidMobile: 'Img2Vid',
+    txt2vidMobile: 'Txt2Vid',
+    vid2animeMobile: 'Vid2Anime',
+    storyMobile: 'Story',
+    storyAvailableIn: 'Story mode is available in',
+    studioPage: 'Studio',
+    fullExperience: 'page for full experience.',
+  },
+
+  studio: {
+    characters: 'Characters',
+    addCharHint: 'Add characters to use in your story scenes.',
+    noDescription: 'No description',
+    sceneTimeline: 'Scene Timeline',
+    noScenesYet: 'No scenes yet',
+    addSceneHint: 'Add your first scene to start building your story.',
+    scene: 'Scene',
+    describeScene: 'Describe this scene...',
+  },
+
+  fileUpload: {
+    dropHere: 'Drop the file here',
+    dragImage: 'Drag & drop an image here',
+    dragVideo: 'Drag & drop a video here',
+    clickToBrowse: 'or click to browse files',
+    uploading: 'Uploading...',
+    imageSelected: 'Image selected',
+    videoSelected: 'Video selected',
+  },
+
+  promptEditor: {
+    characters: 'characters',
+    defaultLabel: 'Prompt',
+    defaultPlaceholder: 'Describe your anime scene in detail...',
+    motionPlaceholder: "Describe how the image should animate... e.g., 'camera slowly pans right, cherry blossoms falling gently'",
+    scenePlaceholder: "Describe your anime video scene in detail... e.g., 'A lone samurai stands on a misty mountain peak at dawn, wind blowing through their hair, cherry blossom petals swirling around'",
+  },
+
+  header: {
+    profile: 'Profile',
+    settings: 'Model Settings',
+    logOut: 'Log out',
+  },
+
+  vid2anime: {
+    comfyuiWarning: 'Requires a local ComfyUI instance to be running and configured.',
+    subtle: 'Subtle (0.3)',
+    full: 'Full (1.0)',
+  },
+
+  jobQueue: {
+    title: 'Job Queue',
+    noJobs: 'No active jobs. Submit a generation to get started.',
+  },
+
+  settings: {
+    apiKeys: 'API Keys',
+    apiKeysDesc: 'Configure your provider API keys to enable video generation.',
+    defaults: 'Defaults',
+    defaultProvider: 'Default Provider',
+    defaultStylePreset: 'Default Style Preset',
+    configured: 'Configured',
+    enterApiKey: 'Enter API key...',
+    local: 'Local',
+    klingDesc: 'High-quality image and text to video generation.',
+    jimengDesc: 'ByteDance Seedance anime video generation.',
+    viduDesc: 'Vidu 2.0 anime-style video generation with native anime support.',
+    comfyuiDesc: 'Local video-to-anime conversion pipeline.',
+  },
+
+  duration: {
+    fiveSeconds: '5 seconds',
+    tenSeconds: '10 seconds',
+  },
+
+  aspectRatio: {
+    landscape: '16:9 Landscape',
+    portrait: '9:16 Portrait',
+    square: '1:1 Square',
+  },
+
+  credits: 'credits',
 }
 
 export default en

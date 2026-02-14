@@ -1,6 +1,6 @@
 from app.services.generation.base_provider import BaseVideoProvider
 from app.services.generation.comfyui import ComfyUIProvider
-from app.services.generation.hailuo import HailuoProvider
+from app.services.generation.hailuo import JimengProvider, ViduProvider
 from app.services.generation.kling import KlingProvider
 
 
@@ -8,7 +8,8 @@ def get_provider(provider_name: str, api_key: str = "") -> BaseVideoProvider:
     """Create and return the appropriate video generation provider."""
     providers: dict[str, type[BaseVideoProvider]] = {
         "kling": KlingProvider,
-        "hailuo": HailuoProvider,
+        "jimeng": JimengProvider,
+        "vidu": ViduProvider,
         "comfyui": ComfyUIProvider,
     }
 

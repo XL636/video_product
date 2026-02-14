@@ -85,7 +85,7 @@ anime-video-gen/
 | 模块 | 描述 | 技术栈 |
 |------|------|------|--------|
 | 用户认证 | JWT 登录/注册 | FastAPI + Pydantic |
-| 视频生成 | 图片/文字/视频转动漫 | Kling AI / Hailuo / ComfyUI |
+| 视频生成 | 图片/文字/视频转动漫 | Kling AI / 即梦 Jimeng / Vidu / ComfyUI |
 | 故事工作室 | 角色管理 + 场景时间线 | SQLAlchemy + React |
 | 视频画廊 | 筛选/搜索/下载 | FastAPI + React |
 | 设置管理 | API Key 加密存储 | FastAPI + Zustand |

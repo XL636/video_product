@@ -100,7 +100,7 @@ class KlingProvider(BaseVideoProvider):
             "prompt": enhanced_prompt,
             "duration": str(request.duration),
             "aspect_ratio": request.aspect_ratio,
-            "model_name": "kling-v1",
+            "model_name": "kling-v1-6",
         }
         if request.negative_prompt:
             payload["negative_prompt"] = request.negative_prompt
@@ -114,7 +114,7 @@ class KlingProvider(BaseVideoProvider):
             "image": request.input_file_url,
             "duration": str(request.duration),
             "aspect_ratio": request.aspect_ratio,
-            "model_name": "kling-v1",
+            "model_name": "kling-v1-6",
         }
         if request.negative_prompt:
             payload["negative_prompt"] = request.negative_prompt
@@ -130,6 +130,6 @@ class KlingProvider(BaseVideoProvider):
             "image": request.input_file_url,
             "duration": str(request.duration),
             "aspect_ratio": request.aspect_ratio,
-            "model_name": "kling-v1",
+            "model_name": "kling-v1-6",
             "cfg_scale": request.style_strength,
         }

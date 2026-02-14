@@ -165,7 +165,8 @@ test.describe('Phase 1: Basic Framework E2E Tests', () => {
 
     // Check for API key configuration cards
     await expect(page.locator('text=Kling AI')).toBeVisible()
-    await expect(page.locator('text=Hailuo')).toBeVisible()
+    await expect(page.locator('text=即梦 Jimeng')).toBeVisible()
+    await expect(page.locator('text=Vidu')).toBeVisible()
     await expect(page.locator('text=ComfyUI')).toBeVisible()
 
     // Check for default settings

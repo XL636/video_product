@@ -5,6 +5,19 @@
 格式遵循 [Keep a Changelog](https://keepachangelog.com/)，
 本项目遵循 [语义化版本控制](https://semver.org/)。
 
+## [0.4.0] - 2026-02-14
+
+### 新增功能
+- 新增即梦 Jimeng (ByteDance Seedance) 视频生成 Provider
+- 新增 Vidu (生数科技) 视频生成 Provider
+- 升级 Kling 模型版本从 kling-v1 到 kling-v1-6
+
+### 变更
+- 移除 Hailuo Provider，替换为 Jimeng 和 Vidu
+- 将导航栏"设置"重命名为"模型设置" (Settings → Model Settings)
+- 更新前端所有 Provider 下拉选项
+- 更新 API schemas 支持新 Provider 列表
+
 ## [0.3.0] - 2026-02-14
 
 ### 新增功能

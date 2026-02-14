@@ -1,6 +1,6 @@
 # Anime Video Generator
 
-A full-stack platform for generating anime-style videos using AI. Users upload reference images, configure style parameters, and generate short video clips via multiple AI backends (Kling, Hailuo, ComfyUI with WAN 2.0).
+A full-stack platform for generating anime-style videos using AI. Users upload reference images, configure style parameters, and generate short video clips via multiple AI backends (Kling, Jimeng, Vidu, ComfyUI with WAN 2.0).
 
 ## Architecture
 
@@ -10,7 +10,7 @@ A full-stack platform for generating anime-style videos using AI. Users upload r
 - **Cache / Broker**: Redis 7
 - **Object Storage**: MinIO (S3-compatible)
 - **Reverse Proxy**: Nginx
-- **Video Generation**: Kling API, Hailuo API, ComfyUI (WAN 2.0 workflows)
+- **Video Generation**: Kling API, Jimeng (Seedance) API, Vidu API, ComfyUI (WAN 2.0 workflows)
 
 ## Quick Start
 
