@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 
 
 class ApiKeyCreate(BaseModel):
-    provider: str = Field(..., pattern=r"^(kling|jimeng|vidu|comfyui)$")
+    provider: str = Field(..., pattern=r"^(kling|jimeng|vidu|cogvideo|comfyui)$")
     api_key: str = Field(..., min_length=1, max_length=500)
 
 

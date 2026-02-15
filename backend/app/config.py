@@ -13,10 +13,17 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "change-me-in-production-use-a-long-random-string"
     ENCRYPTION_KEY: str = ""  # Fernet key, auto-generated if empty
     MINIO_ENDPOINT: str = "localhost:9000"
+    MINIO_PUBLIC_ENDPOINT: str = ""  # Public URL for browser access; defaults to MINIO_ENDPOINT
     MINIO_ACCESS_KEY: str = "minioadmin"
     MINIO_SECRET_KEY: str = "minioadmin"
     MINIO_BUCKET: str = "anime-video-gen"
     MINIO_SECURE: bool = False
+
+    @property
+    def minio_public_url_base(self) -> str:
+        endpoint = self.MINIO_PUBLIC_ENDPOINT or self.MINIO_ENDPOINT
+        scheme = "https" if self.MINIO_SECURE else "http"
+        return f"{scheme}://{endpoint}"
     COMFYUI_URL: str = "http://localhost:8188"
     DEBUG: bool = False
 

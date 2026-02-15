@@ -50,7 +50,7 @@ def upload_file(
         content_type=content_type,
     )
 
-    return f"http://{settings.MINIO_ENDPOINT}/{bucket}/{object_name}"
+    return f"{settings.minio_public_url_base}/{bucket}/{object_name}"
 
 
 def upload_file_stream(
@@ -71,7 +71,7 @@ def upload_file_stream(
         content_type=content_type,
     )
 
-    return f"http://{settings.MINIO_ENDPOINT}/{bucket}/{object_name}"
+    return f"{settings.minio_public_url_base}/{bucket}/{object_name}"
 
 
 def get_presigned_url(object_name: str, expires: timedelta = timedelta(hours=1)) -> str:

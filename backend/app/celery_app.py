@@ -23,4 +23,4 @@ celery_app.conf.update(
     task_default_queue="default",
 )
 
-celery_app.autodiscover_tasks(["app.tasks"])
+celery_app.autodiscover_tasks(["app.tasks"], related_name="generation_tasks")
