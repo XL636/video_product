@@ -1,83 +1,96 @@
-# Anime Video Generator
+# AnimeGen Studio
 
-A full-stack platform for generating anime-style videos using AI. Users upload reference images, configure style parameters, and generate short video clips via multiple AI backends (Kling, Jimeng, Vidu, ComfyUI with WAN 2.0).
+全栈 AI 驱动的动漫视频生成平台。上传参考图片、配置风格参数，通过多种 AI 后端生成动漫风格短视频。
 
-## Architecture
+A full-stack AI-powered anime video generation platform. Upload reference images, configure style parameters, and generate anime-style short videos via multiple AI backends.
 
-- **Frontend**: React + TypeScript + Vite (ShadCN UI)
-- **Backend**: FastAPI + SQLAlchemy (async) + Celery
-- **Database**: PostgreSQL 16
-- **Cache / Broker**: Redis 7
-- **Object Storage**: MinIO (S3-compatible)
-- **Reverse Proxy**: Nginx
-- **Video Generation**: Kling API, Jimeng (Seedance) API, Vidu API, ComfyUI (WAN 2.0 workflows)
+## 技术架构 / Architecture
 
-## Quick Start
+| 层级 | 技术栈 |
+|------|--------|
+| 前端 Frontend | React 18 + TypeScript + Vite + ShadCN UI + TailwindCSS |
+| 后端 Backend | FastAPI + SQLAlchemy (async) + Celery |
+| 数据库 Database | PostgreSQL 16 |
+| 缓存/队列 Cache/Queue | Redis 7 |
+| 对象存储 Storage | MinIO (S3-compatible) |
+| 反向代理 Proxy | Nginx |
+| 视频生成 Generation | Kling API, Jimeng (Seedance), Vidu, CogVideoX, ComfyUI (WAN 2.0) |
 
-### Prerequisites
+## 快速启动 / Quick Start
 
-- Docker and Docker Compose
-- (Optional) Node.js 20+ and Python 3.11+ for local development
+### 前提条件 / Prerequisites
 
-### Setup
+- Docker & Docker Compose
+- （可选 / Optional）Node.js 20+, Python 3.11+
+
+### 启动 / Setup
 
 ```bash
-# Clone the repo
-git clone <repo-url> && cd anime-video-gen
+git clone https://github.com/XL636/video_product.git && cd anime-video-gen
 
-# Copy environment file
-cp .env.example .env
+cp .env.example .env       # 配置环境变量 / Configure env vars
+docker compose up -d       # 启动所有服务 / Start all services
 
-# Start all services
-docker compose up -d
-
-# Open in browser
-open http://localhost
+# 访问 / Open: http://localhost
 ```
 
-### Development (without Docker)
+### 本地开发 / Local Development
 
-**Backend:**
 ```bash
+# 后端 / Backend
 cd backend
 python -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 uvicorn app.main:app --reload
-```
 
-**Frontend:**
-```bash
+# 前端 / Frontend
 cd frontend
 npm install
 npm run dev
 ```
 
-## Project Structure
+> 本地开发仍需 Docker 运行 PostgreSQL、Redis、MinIO。
+> Local dev still requires Docker for PostgreSQL, Redis, MinIO.
+
+## 项目结构 / Project Structure
 
 ```
 anime-video-gen/
-  backend/           # FastAPI application
-    app/
-      api/           # Route handlers
-      models/        # SQLAlchemy models
-      schemas/       # Pydantic schemas
-      services/      # Business logic & external API clients
-      tasks/         # Celery task definitions
-  frontend/          # React + Vite application
-    src/
-      components/    # UI components
-      pages/         # Route pages
-      hooks/         # Custom React hooks
-      services/      # API client layer
-  nginx/             # Reverse proxy config
-  comfyui-workflows/ # ComfyUI workflow JSON files
-  docker-compose.yml
+├── backend/              # FastAPI 后端
+│   └── app/
+│       ├── api/          # API 路由
+│       ├── models/       # SQLAlchemy 数据模型
+│       ├── schemas/      # Pydantic 请求/响应
+│       ├── services/     # 业务逻辑 & AI Provider
+│       └── tasks/        # Celery 异步任务
+├── frontend/             # React + Vite 前端
+│   └── src/
+│       ├── components/   # UI 组件
+│       ├── pages/        # 路由页面
+│       ├── hooks/        # 自定义 Hooks
+│       └── stores/       # Zustand 状态管理
+├── nginx/                # 反向代理配置
+├── comfyui-workflows/    # ComfyUI 工作流
+├── tests/e2e/            # Playwright E2E 测试
+├── GUIDE.md              # 使用指南
+├── PROGRESS.md           # 开发进度
+├── CHANGELOG.md          # 版本历史
+└── TASKS.md              # 任务追踪
 ```
 
-## Environment Variables
+## 环境变量 / Environment Variables
 
-See `.env.example` for all configurable values. API keys for video generation services are configured per-user in the Settings page.
+参见 `.env.example`。视频生成 API Key 在 Settings 页面按用户配置，无需写在 `.env` 中。
+
+See `.env.example`. Video generation API keys are configured per-user in the Settings page.
+
+## 文档 / Documentation
+
+- [使用指南 / Guide](GUIDE.md) — 启动、使用、测试、常见问题
+- [开发进度 / Progress](PROGRESS.md) — Phase 1-5 完成情况
+- [更新日志 / Changelog](CHANGELOG.md) — 版本变更记录
+- [任务追踪 / Tasks](TASKS.md) — 开发任务清单
 
 ## License
 
