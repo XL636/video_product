@@ -18,15 +18,33 @@ import api from '@/lib/api'
 import type { StylePreset, Job } from '@/types'
 import { useLanguage } from '@/hooks/useLanguage'
 
-const ANIME_KEYWORDS = [
-  'anime style',
-  'detailed cel shading',
-  'vibrant colors',
-  'dynamic camera movement',
-  'sakura petals',
-  'soft lighting',
-  'detailed background art',
-]
+const STYLE_KEYWORDS: Record<string, { zh: string[]; en: string[] }> = {
+  ghibli: {
+    zh: ['吉卜力风格', '水彩质感', '柔和光线', '宫崎骏式构图', '梦幻田园', '手绘细节', '自然氛围'],
+    en: ['ghibli style', 'watercolor texture', 'soft lighting', 'miyazaki composition', 'dreamy pastoral', 'hand-drawn detail', 'natural atmosphere'],
+  },
+  shonen: {
+    zh: ['少年漫画风格', '热血动作', '粗犷线条', '速度线效果', '战斗场景', '动态构图', '力量感'],
+    en: ['shonen style', 'intense action', 'bold linework', 'speed lines', 'battle scene', 'dynamic composition', 'powerful impact'],
+  },
+  seinen: {
+    zh: ['青年漫画风格', '写实比例', '暗色调氛围', '精细阴影', '成熟叙事', '电影感镜头', '细腻表情'],
+    en: ['seinen style', 'realistic proportions', 'dark atmosphere', 'detailed shading', 'mature narrative', 'cinematic framing', 'subtle expressions'],
+  },
+  cyberpunk_anime: {
+    zh: ['赛博朋克风格', '霓虹灯光', '未来都市', '科技感', '暗色调', '全息投影', '机械元素'],
+    en: ['cyberpunk style', 'neon lighting', 'futuristic city', 'high-tech', 'dark tone', 'holographic', 'mechanical elements'],
+  },
+  chibi: {
+    zh: ['Q版风格', '可爱角色', '大眼睛', '萌系设计', '明亮配色', '简化比例', '卡哇伊'],
+    en: ['chibi style', 'cute characters', 'big eyes', 'kawaii design', 'bright colors', 'simplified proportions', 'adorable'],
+  },
+}
+
+const GENERAL_KEYWORDS = {
+  zh: ['动漫风格', '精细线条', '鲜艳色彩', '动态镜头', '精美背景', '流畅动画', '日系画风'],
+  en: ['anime style', 'detailed linework', 'vibrant colors', 'dynamic camera', 'detailed background', 'smooth animation', 'japanese art style'],
+}
 
 export function TextToVideoForm() {
   const [prompt, setPrompt] = useState('')
@@ -41,16 +59,18 @@ export function TextToVideoForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const addJob = useJobStore((state) => state.addJob)
-  const { t } = useLanguage()
+  const { language, t } = useLanguage()
 
   const enhancePrompt = () => {
-    const randomKeywords = ANIME_KEYWORDS.sort(() => Math.random() - 0.5).slice(
-      0,
-      3
-    )
+    const lang = language === 'zh-CN' ? 'zh' : 'en'
+    const keywords = STYLE_KEYWORDS[stylePreset]?.[lang] ?? GENERAL_KEYWORDS[lang]
+    const currentPrompt = prompt.trim().toLowerCase()
+    const available = keywords.filter((kw) => !currentPrompt.includes(kw.toLowerCase()))
+    const selected = available.sort(() => Math.random() - 0.5).slice(0, 3)
+    if (selected.length === 0) return
     const enhanced = prompt.trim()
-      ? `${prompt.trim()}, ${randomKeywords.join(', ')}`
-      : randomKeywords.join(', ')
+      ? `${prompt.trim()}, ${selected.join(', ')}`
+      : selected.join(', ')
     setPrompt(enhanced)
   }
 

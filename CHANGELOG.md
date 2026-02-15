@@ -5,6 +5,28 @@
 格式遵循 [Keep a Changelog](https://keepachangelog.com/)，
 本项目遵循 [语义化版本控制](https://semver.org/)。
 
+## [0.5.0] - 2026-02-15
+
+### 新增功能
+- CogVideoX 文生视频启用音频生成 (`with_audio: True`)
+- 提示词增强按钮支持双语（中文/英文）和风格感知关键词
+  - 5 种风格预设各有独立的中英文关键词集
+  - 根据当前语言设置自动选择对应语言
+  - 自动跳过已存在的关键词，避免重复
+- 故事工作室添加服务提供商选择器，支持选择不同 AI 模型
+
+### 修复
+- 修复 CogVideoX 图生视频 400 报错：图片 URL 格式从列表改为字符串，本地 MinIO 图片转 base64 传输
+- 修复 CogVideoX poll_job 错误处理：400 响应不再抛异常，改为返回具体错误信息
+- 修复故事工作室场景生成失败（405 Method Not Allowed）：API 端点从 `POST /jobs` 改为 `POST /generate/text-to-video`
+- 修复前端 Docker 容器启动失败（`npm: not found`）：Dockerfile 添加 dev 构建阶段，docker-compose 指定 `target: dev`
+- 修复前端 API 请求全部 404：`.env` 中 `VITE_API_URL` 补全 `/api/v1` 路径前缀
+
+### 变更
+- 前端 Dockerfile 重构为三阶段构建（dev / build / prod）
+- docker-compose 前端服务指定 `target: dev` 用于开发环境
+- 提示词增强按钮从随机英文关键词改为风格匹配的双语关键词
+
 ## [0.4.0] - 2026-02-14
 
 ### 新增功能

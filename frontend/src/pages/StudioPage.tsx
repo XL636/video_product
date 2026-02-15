@@ -35,6 +35,7 @@ import {
 import { FileDropZone } from '@/components/common/FileDropZone'
 import { useFileUpload } from '@/hooks/useFileUpload'
 import { useJobStore } from '@/stores/jobStore'
+import { useSettingsStore } from '@/stores/settingsStore'
 import { toast } from '@/components/ui/toast'
 import api from '@/lib/api'
 import type { Character, Scene, Job } from '@/types'
@@ -52,6 +53,12 @@ export function StudioPage() {
   const [newCharDesc, setNewCharDesc] = useState('')
   const [isMerging, setIsMerging] = useState(false)
   const [mergedVideoUrl, _setMergedVideoUrl] = useState<string | null>(null)
+  const [provider, setProvider] = useState(
+    useSettingsStore.getState().defaultProvider
+  )
+  const [stylePreset, setStylePreset] = useState(
+    useSettingsStore.getState().defaultStylePreset
+  )
   const { upload } = useFileUpload()
   const addJob = useJobStore((state) => state.addJob)
   const { t } = useLanguage()
@@ -114,16 +121,18 @@ export function StudioPage() {
     }
 
     try {
-      const response = await api.post<Job>('/jobs', {
-        job_type: 'story',
+      const response = await api.post('/generate/text-to-video', {
         prompt: scene.prompt,
-        style_preset: 'ghibli',
-        provider: 'kling',
+        style_preset: stylePreset,
+        provider: provider,
         duration: 5,
+        aspect_ratio: '16:9',
       })
-      addJob(response.data)
+      const jobId = response.data.data?.job_id || response.data.job_id
+      const jobResponse = await api.get<Job>(`/jobs/${jobId}`)
+      addJob(jobResponse.data)
       updateScene(scene.id, {
-        job_id: response.data.id,
+        job_id: jobId,
         status: 'processing',
       })
       toast({ title: t.messages?.sceneGenStarted, variant: 'success' })
@@ -385,7 +394,23 @@ export function StudioPage() {
         {scenes.length > 0 && (
           <>
             <Separator />
-            <div className="flex flex-col-reverse sm:flex-row items-center justify-between gap-3 p-4">
+            <div className="flex items-center gap-3 px-4 pt-3">
+              <div className="flex items-center gap-2">
+                <Label className="text-xs shrink-0">{t.form?.provider}</Label>
+                <Select value={provider} onValueChange={setProvider}>
+                  <SelectTrigger className="h-8 w-[160px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="kling">Kling AI</SelectItem>
+                    <SelectItem value="jimeng">即梦 Jimeng</SelectItem>
+                    <SelectItem value="vidu">Vidu</SelectItem>
+                    <SelectItem value="cogvideo">智谱 CogVideoX</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="flex flex-col-reverse sm:flex-row items-center justify-between gap-3 p-4 pt-2">
               {mergedVideoUrl ? (
                 <Button variant="anime" className="w-full sm:w-auto" onClick={downloadMergedVideo}>
                   <Download className="mr-1 h-3 w-3" />

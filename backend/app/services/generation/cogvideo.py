@@ -1,3 +1,6 @@
+import base64
+import logging
+
 import httpx
 
 from app.services.generation.base_provider import (
@@ -6,6 +9,8 @@ from app.services.generation.base_provider import (
     GenerationResult,
     JobType,
 )
+
+logger = logging.getLogger(__name__)
 
 ZHIPU_API_BASE = "https://open.bigmodel.cn/api/paas/v4"
 
@@ -24,11 +29,11 @@ class CogVideoProvider(BaseVideoProvider):
         enhanced_prompt = self._build_anime_prompt(request.prompt, request.style_preset)
 
         if request.job_type == JobType.IMG2VID:
-            payload = self._build_img2vid_payload(request, enhanced_prompt)
+            payload = await self._build_img2vid_payload(request, enhanced_prompt)
         elif request.job_type in (JobType.TXT2VID, JobType.STORY):
             payload = self._build_txt2vid_payload(request, enhanced_prompt)
         elif request.job_type == JobType.VID2ANIME:
-            payload = self._build_img2vid_payload(request, enhanced_prompt)
+            payload = await self._build_img2vid_payload(request, enhanced_prompt)
         else:
             raise ValueError(f"Unsupported job type for CogVideo: {request.job_type}")
 
@@ -53,7 +58,17 @@ class CogVideoProvider(BaseVideoProvider):
                 f"{ZHIPU_API_BASE}/async-result/{provider_job_id}",
                 headers=self.headers,
             )
-            response.raise_for_status()
+            if response.status_code >= 400:
+                try:
+                    err_data = response.json()
+                    err_msg = err_data.get("message") or err_data.get("error", {}).get("message", str(err_data))
+                except Exception:
+                    err_msg = response.text
+                return GenerationResult(
+                    status="failed",
+                    provider_job_id=provider_job_id,
+                    error=f"ZhipuAI API error ({response.status_code}): {err_msg}",
+                )
             data = response.json()
 
         task_status = data.get("task_status", "PROCESSING")
@@ -92,28 +107,46 @@ class CogVideoProvider(BaseVideoProvider):
             "model": "cogvideox-3",
             "prompt": enhanced_prompt,
             "quality": "quality",
-            "with_audio": False,
+            "with_audio": True,
             "size": self._map_size(request.aspect_ratio),
             "fps": 30,
             "duration": request.duration if request.duration in (5, 10) else 5,
         }
         return payload
 
-    def _build_img2vid_payload(
+    async def _build_img2vid_payload(
         self, request: GenerationRequest, enhanced_prompt: str
     ) -> dict:
         payload: dict = {
             "model": "cogvideox-3",
             "prompt": enhanced_prompt,
             "quality": "quality",
-            "with_audio": False,
+            "with_audio": True,
             "size": self._map_size(request.aspect_ratio),
             "fps": 30,
             "duration": request.duration if request.duration in (5, 10) else 5,
         }
         if request.input_file_url:
-            payload["image_url"] = [request.input_file_url]
+            image_data = await self._fetch_image_as_base64(request.input_file_url)
+            payload["image_url"] = image_data
         return payload
+
+    @staticmethod
+    async def _fetch_image_as_base64(url: str) -> str:
+        """Download image from URL and return as base64 data URI."""
+        from app.config import settings
+
+        # Replace public MinIO endpoint with internal Docker endpoint
+        public_base = settings.minio_public_url_base
+        internal_base = f"http://{settings.MINIO_ENDPOINT}"
+        fetch_url = url.replace(public_base, internal_base)
+
+        async with httpx.AsyncClient(timeout=30) as client:
+            resp = await client.get(fetch_url)
+            resp.raise_for_status()
+        content_type = resp.headers.get("content-type", "image/jpeg")
+        b64 = base64.b64encode(resp.content).decode()
+        return f"data:{content_type};base64,{b64}"
 
     @staticmethod
     def _map_size(aspect_ratio: str) -> str:
