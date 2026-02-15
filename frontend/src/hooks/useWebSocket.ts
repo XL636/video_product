@@ -1,7 +1,7 @@
 import { useEffect, useRef, useCallback } from 'react'
 import { useJobStore } from '@/stores/jobStore'
 import { useAuthStore } from '@/stores/authStore'
-import type { WebSocketMessage } from '@/types'
+import type { Job } from '@/types'
 
 const RECONNECT_INTERVAL = 3000
 const MAX_RECONNECT_ATTEMPTS = 10

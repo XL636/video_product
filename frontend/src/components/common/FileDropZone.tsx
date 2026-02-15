@@ -25,7 +25,7 @@ export function FileDropZone({
   const [fileName, setFileName] = useState<string | null>(null)
   const { t } = useLanguage()
 
-  const acceptConfig =
+  const acceptConfig: Record<string, string[]> =
     accept === 'image'
       ? { 'image/*': ['.png', '.jpg', '.jpeg', '.webp'] }
       : { 'video/*': ['.mp4', '.webm', '.mov'] }

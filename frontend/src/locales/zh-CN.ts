@@ -255,6 +255,7 @@ export const zhCN = {
     klingDesc: '高质量图片和文字转视频生成。',
     jimengDesc: '字节跳动即梦动漫视频生成。',
     viduDesc: 'Vidu 2.0 动漫风格视频生成，原生支持动漫风格。',
+    cogvideoDesc: '智谱 CogVideoX-3 视频生成，支持文字/图片转视频。',
     comfyuiDesc: '本地视频转动漫转换流程。',
   },
 

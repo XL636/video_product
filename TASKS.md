@@ -35,10 +35,8 @@
 
 ---
 
-## 明日待办
+## 待办
 
-- [ ] 启动 Docker Desktop
-- [ ] 运行 `docker compose up -d` 启动服务
-- [ ] 运行 Phase 1 E2E 测试
-- [ ] 手动功能验证
-- [ ] 移动端测试
+- [ ] 完整 E2E 测试验证（Phase 2/3/4 Playwright 测试）
+- [ ] 申请并配置真实 API Key（Kling / 即梦 / Vidu）
+- [ ] 生产环境部署

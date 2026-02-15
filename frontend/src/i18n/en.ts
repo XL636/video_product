@@ -237,6 +237,7 @@ export const en = {
     klingDesc: 'High-quality image and text to video generation.',
     jimengDesc: 'ByteDance Seedance anime video generation.',
     viduDesc: 'Vidu 2.0 anime-style video generation with native anime support.',
+    cogvideoDesc: 'ZhipuAI CogVideoX-3 text/image to video generation.',
     comfyuiDesc: 'Local video-to-anime conversion pipeline.',
   },
 

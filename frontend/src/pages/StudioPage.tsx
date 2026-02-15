@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback } from 'react'
 import {
   Plus,
   Trash2,
@@ -11,7 +11,7 @@ import {
   Loader2,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
@@ -51,7 +51,7 @@ export function StudioPage() {
   const [newCharName, setNewCharName] = useState('')
   const [newCharDesc, setNewCharDesc] = useState('')
   const [isMerging, setIsMerging] = useState(false)
-  const [mergedVideoUrl, setMergedVideoUrl] = useState<string | null>(null)
+  const [mergedVideoUrl, _setMergedVideoUrl] = useState<string | null>(null)
   const { upload } = useFileUpload()
   const addJob = useJobStore((state) => state.addJob)
   const { t } = useLanguage()

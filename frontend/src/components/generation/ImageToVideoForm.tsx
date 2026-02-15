@@ -109,6 +109,7 @@ export function ImageToVideoForm() {
               <SelectItem value="kling">Kling AI</SelectItem>
               <SelectItem value="jimeng">即梦 Jimeng</SelectItem>
               <SelectItem value="vidu">Vidu</SelectItem>
+              <SelectItem value="cogvideo">智谱 CogVideoX</SelectItem>
             </SelectContent>
           </Select>
         </div>

@@ -1,10 +1,7 @@
-import React from 'react'
-import { useLanguage, Language } from './useLanguage'
-import { Languages } from './Languages'
+import { useLanguage, type Language } from '@/hooks/useLanguage'
 
 export function I18nLanguageSwitcher() {
   const { language, setLanguage } = useLanguage()
-  const t = Languages[language]
 
   const changeLanguage = (lang: Language) => {
     setLanguage(lang)
@@ -13,7 +10,7 @@ export function I18nLanguageSwitcher() {
 
   return (
     <div className="fixed bottom-4 right-4 z-50">
-      {['en', 'zh-CN'].map((lang) => (
+      {(['en-US', 'zh-CN'] as Language[]).map((lang) => (
         <button
           key={lang}
           onClick={() => changeLanguage(lang)}
@@ -24,7 +21,7 @@ export function I18nLanguageSwitcher() {
           }`}
           style={{ minWidth: '60px' }}
         >
-          {lang === 'en' ? 'EN' : '中文'}
+          {lang === 'en-US' ? 'EN' : '中文'}
         </button>
       ))}
     </div>

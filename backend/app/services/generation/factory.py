@@ -1,4 +1,5 @@
 from app.services.generation.base_provider import BaseVideoProvider
+from app.services.generation.cogvideo import CogVideoProvider
 from app.services.generation.comfyui import ComfyUIProvider
 from app.services.generation.hailuo import JimengProvider, ViduProvider
 from app.services.generation.kling import KlingProvider
@@ -10,6 +11,7 @@ def get_provider(provider_name: str, api_key: str = "") -> BaseVideoProvider:
         "kling": KlingProvider,
         "jimeng": JimengProvider,
         "vidu": ViduProvider,
+        "cogvideo": CogVideoProvider,
         "comfyui": ComfyUIProvider,
     }
 

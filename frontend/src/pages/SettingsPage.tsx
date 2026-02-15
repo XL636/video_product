@@ -50,6 +50,11 @@ export function SettingsPage() {
       description: t.settings?.viduDesc || '',
     },
     {
+      key: 'cogvideo',
+      label: '智谱 CogVideoX',
+      description: t.settings?.cogvideoDesc || 'ZhipuAI CogVideoX-3 video generation.',
+    },
+    {
       key: 'comfyui',
       label: 'ComfyUI',
       description: t.settings?.comfyuiDesc || '',
@@ -94,6 +99,7 @@ export function SettingsPage() {
                 <SelectItem value="kling">Kling AI</SelectItem>
                 <SelectItem value="jimeng">即梦 Jimeng</SelectItem>
                 <SelectItem value="vidu">Vidu</SelectItem>
+                <SelectItem value="cogvideo">智谱 CogVideoX</SelectItem>
                 <SelectItem value="comfyui">ComfyUI ({t.settings?.local})</SelectItem>
               </SelectContent>
             </Select>
