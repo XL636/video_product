@@ -243,7 +243,10 @@ export const en = {
 
   duration: {
     fiveSeconds: '5 seconds',
+    eightSeconds: '8 seconds',
     tenSeconds: '10 seconds',
+    twelveSeconds: '12 seconds',
+    fifteenSeconds: '15 seconds',
   },
 
   aspectRatio: {

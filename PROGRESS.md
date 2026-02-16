@@ -51,3 +51,20 @@
 - CogVideoX 文生视频音频生成（with_audio: True）
 - Prompt 增强按钮支持双语和风格感知关键词
 - 故事工作室添加 Provider 选择器
+
+## Phase 6: MCP 集成与优化 ✅
+**完成日期**: 2026-02-16
+
+- 修复即梦 Jimeng img2vid base64 图片编码问题
+- CogVideoX duration 映射优化
+- 新增 5 个时长选项（前端 TextToVideo / ImageToVideo 表单）
+- 中英文时长翻译
+- E2E 测试计划 67 个用例（TEST_PLAN.md）
+- 项目级 MCP Server（`mcp-server/server.py`）：15 个工具覆盖全部核心 API
+  - 认证：login / register / get_me
+  - 生成：text-to-video / image-to-video / video-to-anime
+  - 任务：check_job / list_jobs
+  - 画廊：search_gallery
+  - 上传：upload_file
+  - 设置：list_api_keys / save_api_key
+  - 故事：create_story / add_character / add_scene / generate_story / merge_story

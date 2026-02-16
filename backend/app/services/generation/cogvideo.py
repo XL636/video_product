@@ -110,7 +110,7 @@ class CogVideoProvider(BaseVideoProvider):
             "with_audio": True,
             "size": self._map_size(request.aspect_ratio),
             "fps": 30,
-            "duration": request.duration if request.duration in (5, 10) else 5,
+            "duration": min(request.duration, 10) if request.duration >= 8 else 5,
         }
         return payload
 
@@ -124,7 +124,7 @@ class CogVideoProvider(BaseVideoProvider):
             "with_audio": True,
             "size": self._map_size(request.aspect_ratio),
             "fps": 30,
-            "duration": request.duration if request.duration in (5, 10) else 5,
+            "duration": min(request.duration, 10) if request.duration >= 8 else 5,
         }
         if request.input_file_url:
             image_data = await self._fetch_image_as_base64(request.input_file_url)

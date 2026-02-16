@@ -262,7 +262,10 @@ export const zhCN = {
   // 时长选项
   duration: {
     fiveSeconds: '5 秒',
+    eightSeconds: '8 秒',
     tenSeconds: '10 秒',
+    twelveSeconds: '12 秒',
+    fifteenSeconds: '15 秒',
   },
 
   // 画面比例

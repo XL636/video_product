@@ -157,7 +157,10 @@ export function TextToVideoForm() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="5">{t.duration?.fiveSeconds}</SelectItem>
+              <SelectItem value="8">{t.duration?.eightSeconds}</SelectItem>
               <SelectItem value="10">{t.duration?.tenSeconds}</SelectItem>
+              <SelectItem value="12">{t.duration?.twelveSeconds}</SelectItem>
+              <SelectItem value="15">{t.duration?.fifteenSeconds}</SelectItem>
             </SelectContent>
           </Select>
         </div>

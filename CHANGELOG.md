@@ -5,6 +5,24 @@
 格式遵循 [Keep a Changelog](https://keepachangelog.com/)，
 本项目遵循 [语义化版本控制](https://semver.org/)。
 
+## [0.5.1] - 2026-02-16
+
+### 新增功能
+- 项目级 MCP Server（`mcp-server/server.py`），让 Claude Code 可直接调用后端 API
+  - 15 个 MCP 工具覆盖：认证、视频生成、任务管理、画廊、文件上传、API Key 管理、故事工作流
+  - 基于 FastMCP + httpx，通过 stdio 与 Claude Code 通信
+  - 自动 JWT token 管理，登录后后续请求自动携带认证
+- 前端新增 5 个视频时长选项（TextToVideo / ImageToVideo 表单）
+- E2E 测试计划文档（TEST_PLAN.md，67 个测试用例）
+
+### 修复
+- 修复即梦 Jimeng img2vid base64 图片编码问题（`hailuo.py`）
+- CogVideoX duration 映射优化（`cogvideo.py`）
+
+### 变更
+- 新增 `.claude/mcp.json` 注册 animegen MCP Server
+- 新增中英文时长翻译（`zh-CN.ts` / `en.ts`）
+
 ## [0.5.0] - 2026-02-15
 
 ### 新增功能
