@@ -5,6 +5,25 @@
 格式遵循 [Keep a Changelog](https://keepachangelog.com/)，
 本项目遵循 [语义化版本控制](https://semver.org/)。
 
+## [0.6.1] - 2026-02-17
+
+### 修复
+- 修复链式生成 `session.expire_all()` 错误：该方法为同步方法，移除错误的 `await`
+- 修复链式生成场景间 API 速率限制：场景之间添加 5 秒延迟
+- 修复 CogVideoX 429 频率限制处理：添加指数退避重试（30s / 60s / 120s），并记录响应体用于排查
+- 修复合并视频 Windows 播放器无法打开（错误 0xC00D36C4）：像素格式从 `yuv444p` 改为 `yuv420p`
+
+### 测试
+- Playwright E2E 端到端验证：Jimeng (Seedance 1.5 Pro) 连贯模式 4 场景完整流程
+  - Scene 1 (txt2vid) → 提取末帧 → Scene 2 (img2vid) → 提取末帧 → Scene 3 → Scene 4
+  - 4 场景链式生成总用时 ~5.7 分钟
+  - crossfade 合并输出 18.75 秒视频（1280x720, H.264 yuv420p, AAC 音频, 8.5 MB）
+  - 验证了失败场景自动回退 txt2vid 机制
+
+### 改动文件
+- `backend/app/services/generation/cogvideo.py` — 429 指数退避重试 + 响应体日志
+- `backend/app/tasks/generation_tasks.py` — expire_all 修复 + 场景延迟 + yuv420p 像素格式
+
 ## [0.6.0] - 2026-02-17
 
 ### 新增功能

@@ -372,11 +372,15 @@ async def _process_story_generation_chained(story_id: str, scene_job_ids: list[s
                 job.metadata_json["chained"] = True
                 await session.commit()
 
+            # Small delay between scenes to avoid provider rate limits
+            if idx > 0:
+                await asyncio.sleep(5)
+
             # Process the generation
             await _process_generation(job_id)
 
             # Re-fetch from DB to check status after generation (uses separate session)
-            await session.expire_all()
+            session.expire_all()
             result = await session.execute(select(Job).where(Job.id == uuid.UUID(job_id)))
             job = result.scalar_one_or_none()
 
@@ -589,6 +593,7 @@ def _merge_videos_with_transitions(
             "-map", "[vout]",
             "-map", "[aout]",
             "-c:v", "libx264",
+            "-pix_fmt", "yuv420p",
             "-preset", "fast",
             "-crf", "23",
             "-c:a", "aac",

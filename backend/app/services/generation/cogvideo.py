@@ -1,3 +1,4 @@
+import asyncio
 import base64
 import logging
 
@@ -37,14 +38,24 @@ class CogVideoProvider(BaseVideoProvider):
         else:
             raise ValueError(f"Unsupported job type for CogVideo: {request.job_type}")
 
-        async with httpx.AsyncClient(timeout=60) as client:
-            response = await client.post(
-                f"{ZHIPU_API_BASE}/videos/generations",
-                json=payload,
-                headers=self.headers,
-            )
-            response.raise_for_status()
-            data = response.json()
+        # Retry with exponential backoff on 429 rate limits
+        max_retries = 3
+        for attempt in range(max_retries + 1):
+            async with httpx.AsyncClient(timeout=60) as client:
+                response = await client.post(
+                    f"{ZHIPU_API_BASE}/videos/generations",
+                    json=payload,
+                    headers=self.headers,
+                )
+                if response.status_code == 429 and attempt < max_retries:
+                    wait = 30 * (2 ** attempt)  # 30s, 60s, 120s
+                    body = response.text[:300]
+                    logger.warning("CogVideoX 429 rate limited, retrying in %ds (attempt %d/%d). Response: %s", wait, attempt + 1, max_retries, body)
+                    await asyncio.sleep(wait)
+                    continue
+                response.raise_for_status()
+                data = response.json()
+                break
 
         task_id = data.get("id")
         if not task_id:

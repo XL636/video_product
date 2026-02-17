@@ -68,3 +68,49 @@
   - 上传：upload_file
   - 设置：list_api_keys / save_api_key
   - 故事：create_story / add_character / add_scene / generate_story / merge_story
+
+## Phase 7: 故事视频连贯性 ✅
+**完成日期**: 2026-02-17
+
+### v0.6.0 — 三阶段连贯性改进
+
+**阶段1：前端接通 Stories API**
+- 工作室页面加载时自动创建/恢复后端 Story，角色和场景实时同步到后端
+- 角色增删调用 `POST/DELETE /stories/{id}/characters`
+- 场景增删调用 `POST/DELETE /stories/{id}/scenes`，编辑后自动同步（onBlur）
+- "全部生成" 调用 `POST /stories/{id}/generate`，触发后端 prompt 增强
+- WebSocket 实时更新场景状态徽章
+- 新增生成模式切换 UI（快速模式 / 连贯模式）
+
+**阶段2：连贯模式 — 链式 I2V 生成**
+- 快速模式：并行生成所有场景，速度快但视觉不连贯
+- 连贯模式：链式 I2V 生成，提取上一场景末帧作为下一场景参考图
+- `_extract_last_frame`：ffmpeg 提取视频倒数 0.5 秒处的帧作为 PNG
+- `_process_story_generation_chained`：串行处理场景，自动切换 img2vid 模式
+- 失败场景自动回退 txt2vid，不中断后续场景
+- Prompt 增强感知 I2V 模式：首场景 establishing shot，后续场景 maintain appearance
+
+**阶段3：Crossfade 转场合并**
+- `_merge_videos_with_transitions`：ffmpeg xfade + acrossfade 滤镜
+- 默认 0.5 秒交叉淡入淡出
+- 自动检测无音轨片段并补充静音轨（`_ensure_audio`）
+- xfade 失败时自动回退到 concat 简单拼接
+
+### v0.6.1 — Bug 修复
+
+- 修复链式生成 `session.expire_all()` 错误：移除错误的 `await`（同步方法）
+- 修复链式生成场景间 API 速率限制：场景之间添加 5 秒延迟
+- 修复 CogVideoX 429 频率限制处理：添加指数退避重试（30s / 60s / 120s）+ 响应体日志
+- 修复合并视频 Windows 播放器无法打开（0xC00D36C4）：像素格式 yuv444p → yuv420p
+
+### E2E 验证
+
+Playwright + Jimeng (Seedance 1.5 Pro) 连贯模式 4 场景完整流程：
+- Scene 1 (txt2vid) → 提取末帧 → Scene 2 (img2vid) → 提取末帧 → Scene 3 → Scene 4
+- 4 场景链式生成总用时 ~5.7 分钟
+- crossfade 合并输出 18.75 秒视频（1280x720, H.264 yuv420p, AAC 音频, 8.5 MB）
+- 验证了失败场景自动回退 txt2vid 机制
+
+### 已知问题
+- WebSocket 连接失败导致前端场景状态徽章不更新（后端数据正常）
+- StudioPage 偶发重定向到 Gallery（原因待查）
