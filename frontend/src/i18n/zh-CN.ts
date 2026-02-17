@@ -200,6 +200,15 @@ export const zhCN = {
     addSceneHint: '添加第一个场景开始构建你的故事。',
     scene: '场景',
     describeScene: '描述此场景...',
+    generationMode: '生成模式',
+    fastMode: '快速模式',
+    fastModeDesc: '并行生成，更快但画面不连贯',
+    coherentMode: '连贯模式',
+    coherentModeDesc: '链式生成，视觉连贯',
+    generatingScene: '正在生成第 {current}/{total} 个场景...',
+    storyGenStarted: '故事生成已开始！',
+    storyGenFailed: '故事生成启动失败',
+    creatingStory: '正在创建故事...',
   },
 
   // 文件拖放

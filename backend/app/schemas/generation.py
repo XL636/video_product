@@ -34,6 +34,7 @@ class StoryGenerationRequest(BaseModel):
     story_id: uuid.UUID
     provider: str = Field(default="kling", pattern=r"^(kling|jimeng|vidu|cogvideo|comfyui)$")
     style_preset: str = Field(default="ghibli", max_length=50)
+    generation_mode: str = Field(default="fast", pattern=r"^(fast|coherent)$")
 
 
 class GenerationResponse(BaseModel):

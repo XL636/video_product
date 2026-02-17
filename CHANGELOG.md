@@ -5,6 +5,46 @@
 格式遵循 [Keep a Changelog](https://keepachangelog.com/)，
 本项目遵循 [语义化版本控制](https://semver.org/)。
 
+## [0.6.0] - 2026-02-17
+
+### 新增功能
+- **故事视频连贯性改进**：三阶段全面提升故事模式视频质量
+- 前端工作室页面接通后端 Stories API
+  - 页面加载时自动创建/恢复后端 Story，角色和场景实时同步到后端
+  - 角色增删调用 `POST/DELETE /stories/{id}/characters`
+  - 场景增删调用 `POST/DELETE /stories/{id}/scenes`，编辑后自动同步（onBlur）
+  - "全部生成" 调用 `POST /stories/{id}/generate`，触发后端 prompt 增强
+  - WebSocket 实时更新场景状态徽章
+- 新增 **生成模式切换**（快速模式 / 连贯模式）
+  - 快速模式：并行生成所有场景，速度快但视觉不连贯
+  - 连贯模式：链式 I2V 生成，提取上一场景末帧作为下一场景参考图，实现视觉连续性
+- 连贯模式链式生成（I2V 串联）
+  - `_extract_last_frame`：ffmpeg 提取视频倒数 0.5 秒处的帧作为 PNG
+  - `_process_story_generation_chained`：串行处理场景，自动切换 img2vid 模式
+  - 失败场景自动回退 txt2vid，不中断后续场景
+  - Prompt 增强感知 I2V 模式：首场景添加 "establishing shot"，后续场景添加 "maintain character appearance and color palette"
+- 场景合并添加 **crossfade 转场过渡**
+  - `_merge_videos_with_transitions`：ffmpeg xfade + acrossfade 滤镜，默认 0.5 秒交叉淡入淡出
+  - 自动检测无音轨片段并补充静音轨（`_ensure_audio`）
+  - xfade 失败时自动回退到 concat 简单拼接
+
+### 变更
+- `StoryGenerationRequest` schema 新增 `generation_mode` 字段（`fast` | `coherent`）
+- `generate_story` 端点根据模式分发：fast 并行 / coherent 链式
+- `enhance_story_scene_prompt` 新增 `is_chained` 参数，连贯模式下添加 I2V 连贯提示
+- `Scene` 类型新增 `video_url` 字段和 `GenerationMode` 类型
+- 场景合并从简单 concat 升级为 xfade 转场（带 fallback）
+- 新增中英文翻译：生成模式、快速模式、连贯模式等
+
+### 改动文件
+- `frontend/src/pages/StudioPage.tsx` — 接通 Stories API、生成模式切换 UI
+- `frontend/src/types/index.ts` — Scene 类型补充 video_url、GenerationMode
+- `frontend/src/i18n/en.ts` / `zh-CN.ts` — 新增 studio 翻译
+- `backend/app/schemas/generation.py` — StoryGenerationRequest 增加 generation_mode
+- `backend/app/api/v1/stories.py` — generate 端点支持 fast/coherent 分发
+- `backend/app/tasks/generation_tasks.py` — 链式生成、帧提取、转场合并
+- `backend/app/services/generation/prompt_enhancer.py` — I2V 连贯 prompt 增强
+
 ## [0.5.1] - 2026-02-16
 
 ### 新增功能

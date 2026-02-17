@@ -56,8 +56,13 @@ def enhance_story_scene_prompt(
     style_preset: str,
     scene_index: int,
     total_scenes: int,
+    is_chained: bool = False,
 ) -> str:
-    """Enhance a story scene prompt with character and continuity context."""
+    """Enhance a story scene prompt with character and continuity context.
+
+    Args:
+        is_chained: When True (coherent mode), adds I2V-aware continuity hints.
+    """
     parts: list[str] = []
 
     style_prefix = BaseVideoProvider.ANIME_STYLE_PRESETS.get(
@@ -74,6 +79,17 @@ def enhance_story_scene_prompt(
         parts.append(char_context)
 
     parts.append(f"scene {scene_index + 1} of {total_scenes}")
+
+    # I2V-aware continuity hints for coherent mode
+    if is_chained:
+        if scene_index == 0:
+            parts.append("opening scene, establishing shot")
+        else:
+            parts.append(
+                "continuation from previous scene, "
+                "maintain character appearance and color palette"
+            )
+
     parts.append("consistent art style throughout")
     parts.append(scene_prompt.strip())
 

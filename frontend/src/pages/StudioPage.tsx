@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import {
   Plus,
   Trash2,
@@ -9,6 +9,8 @@ import {
   Sparkles,
   Download,
   Loader2,
+  Zap,
+  Link2,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
@@ -38,12 +40,8 @@ import { useJobStore } from '@/stores/jobStore'
 import { useSettingsStore } from '@/stores/settingsStore'
 import { toast } from '@/components/ui/toast'
 import api from '@/lib/api'
-import type { Character, Scene, Job } from '@/types'
+import type { Character, Scene, GenerationMode } from '@/types'
 import { useLanguage } from '@/hooks/useLanguage'
-
-// For now, we'll use a mock story ID for merge functionality
-// In a full implementation, this would come from a saved story
-const STORY_ID = localStorage.getItem('current_story_id') || 'temp-story-id'
 
 export function StudioPage() {
   const [characters, setCharacters] = useState<Character[]>([])
@@ -52,7 +50,9 @@ export function StudioPage() {
   const [newCharName, setNewCharName] = useState('')
   const [newCharDesc, setNewCharDesc] = useState('')
   const [isMerging, setIsMerging] = useState(false)
+  const [isGenerating, setIsGenerating] = useState(false)
   const [mergedVideoUrl, _setMergedVideoUrl] = useState<string | null>(null)
+  const [generationMode, setGenerationMode] = useState<GenerationMode>('fast')
   const [provider, setProvider] = useState(
     useSettingsStore.getState().defaultProvider
   )
@@ -60,10 +60,121 @@ export function StudioPage() {
     useSettingsStore.getState().defaultStylePreset
   )
   const { upload } = useFileUpload()
-  const addJob = useJobStore((state) => state.addJob)
+  const jobs = useJobStore((state) => state.jobs)
   const { t } = useLanguage()
 
+  const storyIdRef = useRef<string | null>(
+    localStorage.getItem('current_story_id')
+  )
+  const [storyReady, setStoryReady] = useState(!!storyIdRef.current)
   const [charImageUrl, setCharImageUrl] = useState<string | null>(null)
+
+  // Create or resume story on mount
+  useEffect(() => {
+    const initStory = async () => {
+      // If we already have a valid story ID, verify it exists
+      if (storyIdRef.current && storyIdRef.current !== 'temp-story-id') {
+        try {
+          const res = await api.get(`/stories/${storyIdRef.current}`)
+          // Restore characters and scenes from backend
+          if (res.data.characters) {
+            setCharacters(
+              res.data.characters.map((c: any) => ({
+                id: c.id,
+                name: c.name,
+                description: c.description || '',
+                reference_image_url: c.reference_image_url || '',
+              }))
+            )
+          }
+          if (res.data.scenes) {
+            setScenes(
+              res.data.scenes.map((s: any) => ({
+                id: s.id,
+                order_index: s.order_index,
+                prompt: s.prompt || '',
+                character_id: s.character_id || undefined,
+                job_id: s.job_id || undefined,
+                status: s.status || 'draft',
+              }))
+            )
+          }
+          setStoryReady(true)
+          return
+        } catch {
+          // Story doesn't exist anymore, create a new one
+          storyIdRef.current = null
+          localStorage.removeItem('current_story_id')
+        }
+      }
+
+      // Create a new story
+      try {
+        const res = await api.post('/stories', {
+          title: 'Untitled Story',
+          description: '',
+        })
+        storyIdRef.current = res.data.id
+        localStorage.setItem('current_story_id', res.data.id)
+        setStoryReady(true)
+      } catch {
+        // If not authenticated, story creation will fail - that's ok
+        setStoryReady(false)
+      }
+    }
+
+    initStory()
+  }, [])
+
+  // Sync scene statuses from job store via WebSocket updates
+  useEffect(() => {
+    setScenes((prev) =>
+      prev.map((scene) => {
+        if (!scene.job_id) return scene
+        const job = jobs.find((j) => j.id === scene.job_id)
+        if (!job) return scene
+        const newStatus =
+          job.status === 'completed'
+            ? 'completed'
+            : job.status === 'failed'
+              ? 'failed'
+              : job.status === 'processing' || job.status === 'submitted'
+                ? 'processing'
+                : scene.status
+        if (newStatus !== scene.status) {
+          return {
+            ...scene,
+            status: newStatus,
+            video_url:
+              job.status === 'completed'
+                ? job.output_video_url
+                : scene.video_url,
+          }
+        }
+        return scene
+      })
+    )
+  }, [jobs])
+
+  const ensureStory = async (): Promise<string | null> => {
+    if (storyIdRef.current) return storyIdRef.current
+    try {
+      const res = await api.post('/stories', {
+        title: 'Untitled Story',
+        description: '',
+      })
+      storyIdRef.current = res.data.id
+      localStorage.setItem('current_story_id', res.data.id)
+      setStoryReady(true)
+      return res.data.id
+    } catch {
+      toast({
+        title: t.studio?.storyGenFailed,
+        variant: 'destructive',
+      })
+      return null
+    }
+  }
 
   const handleCharImageSelect = useCallback(
     async (file: File) => {
@@ -73,35 +184,84 @@ export function StudioPage() {
     [upload]
   )
 
-  const addCharacter = () => {
+  const addCharacter = async () => {
     if (!newCharName.trim()) return
-    const character: Character = {
-      id: crypto.randomUUID(),
-      name: newCharName,
-      description: newCharDesc,
-      reference_image_url: charImageUrl || '',
+    const storyId = await ensureStory()
+    if (!storyId) return
+
+    try {
+      const res = await api.post(`/stories/${storyId}/characters`, {
+        name: newCharName,
+        description: newCharDesc,
+        reference_image_url: charImageUrl || '',
+      })
+
+      const character: Character = {
+        id: res.data.id,
+        name: res.data.name,
+        description: res.data.description || '',
+        reference_image_url: res.data.reference_image_url || '',
+      }
+      setCharacters((prev) => [...prev, character])
+    } catch {
+      // Fallback to local-only if API fails
+      const character: Character = {
+        id: crypto.randomUUID(),
+        name: newCharName,
+        description: newCharDesc,
+        reference_image_url: charImageUrl || '',
+      }
+      setCharacters((prev) => [...prev, character])
     }
-    setCharacters((prev) => [...prev, character])
+
     setNewCharName('')
     setNewCharDesc('')
     setCharImageUrl(null)
     setShowCharDialog(false)
   }
 
-  const removeCharacter = (id: string) => {
+  const removeCharacter = async (id: string) => {
     setCharacters((prev) => prev.filter((c) => c.id !== id))
+    const storyId = storyIdRef.current
+    if (storyId) {
+      try {
+        await api.delete(`/stories/${storyId}/characters/${id}`)
+      } catch {
+        // Character may not exist in backend, that's ok
+      }
+    }
   }
 
-  const addScene = () => {
-    const scene: Scene = {
-      id: crypto.randomUUID(),
-      order_index: scenes.length,
-      prompt: '',
-      character_id: undefined,
-      job_id: undefined,
-      status: 'draft',
+  const addScene = async () => {
+    const storyId = await ensureStory()
+    if (!storyId) return
+
+    try {
+      const res = await api.post(`/stories/${storyId}/scenes`, {
+        prompt: '',
+      })
+
+      const scene: Scene = {
+        id: res.data.id,
+        order_index: res.data.order_index,
+        prompt: '',
+        character_id: undefined,
+        job_id: undefined,
+        status: 'draft',
+      }
+      setScenes((prev) => [...prev, scene])
+    } catch {
+      // Fallback to local-only
+      const scene: Scene = {
+        id: crypto.randomUUID(),
+        order_index: scenes.length,
+        prompt: '',
+        character_id: undefined,
+        job_id: undefined,
+        status: 'draft',
+      }
+      setScenes((prev) => [...prev, scene])
     }
-    setScenes((prev) => [...prev, scene])
   }
 
   const updateScene = (id: string, updates: Partial<Scene>) => {
@@ -110,8 +270,30 @@ export function StudioPage() {
     )
   }
 
-  const removeScene = (id: string) => {
+  // Sync scene changes to backend on blur
+  const syncSceneToBackend = async (scene: Scene) => {
+    const storyId = storyIdRef.current
+    if (!storyId) return
+    try {
+      await api.put(`/stories/${storyId}/scenes/${scene.id}`, {
+        prompt: scene.prompt,
+        character_id: scene.character_id || null,
+      })
+    } catch {
+      // Sync failure is non-critical
+    }
+  }
+
+  const removeScene = async (id: string) => {
     setScenes((prev) => prev.filter((s) => s.id !== id))
+    const storyId = storyIdRef.current
+    if (storyId) {
+      try {
+        await api.delete(`/stories/${storyId}/scenes/${id}`)
+      } catch {
+        // Scene may not exist in backend
+      }
+    }
   }
 
   const generateScene = async (scene: Scene) => {
@@ -129,8 +311,6 @@ export function StudioPage() {
         aspect_ratio: '16:9',
       })
       const jobId = response.data.data?.job_id || response.data.job_id
-      const jobResponse = await api.get<Job>(`/jobs/${jobId}`)
-      addJob(jobResponse.data)
       updateScene(scene.id, {
         job_id: jobId,
         status: 'processing',
@@ -142,6 +322,9 @@ export function StudioPage() {
   }
 
   const generateAll = async () => {
+    const storyId = await ensureStory()
+    if (!storyId) return
+
     const pendingScenes = scenes.filter(
       (s) => s.status === 'draft' && s.prompt.trim()
     )
@@ -149,13 +332,60 @@ export function StudioPage() {
       toast({ title: t.messages?.noScenesToGenerate, variant: 'destructive' })
       return
     }
-    for (const scene of pendingScenes) {
-      await generateScene(scene)
+
+    // Sync all scene prompts to backend before generating
+    for (const scene of scenes) {
+      if (scene.prompt.trim()) {
+        await syncSceneToBackend(scene)
+      }
+    }
+
+    setIsGenerating(true)
+    try {
+      const response = await api.post(`/stories/${storyId}/generate`, {
+        story_id: storyId,
+        provider: provider,
+        style_preset: stylePreset,
+        generation_mode: generationMode,
+      })
+
+      // Update all pending scenes to queued
+      setScenes((prev) =>
+        prev.map((s) =>
+          s.status === 'draft' && s.prompt.trim()
+            ? { ...s, status: 'queued' }
+            : s
+        )
+      )
+
+      const modeLabel =
+        generationMode === 'coherent'
+          ? t.studio?.coherentMode
+          : t.studio?.fastMode
+      toast({
+        title: t.studio?.storyGenStarted,
+        description: `${modeLabel} - ${response.data.job_count} scenes`,
+        variant: 'success',
+      })
+    } catch {
+      toast({ title: t.studio?.storyGenFailed, variant: 'destructive' })
+    } finally {
+      setIsGenerating(false)
     }
   }
 
   const mergeScenes = async () => {
-    const completedScenes = scenes.filter(s => s.status === 'completed')
+    const storyId = storyIdRef.current
+    if (!storyId) {
+      toast({
+        title: t.messages?.saveStoryFirst,
+        description: t.messages?.saveStoryDesc,
+        variant: 'destructive',
+      })
+      return
+    }
+
+    const completedScenes = scenes.filter((s) => s.status === 'completed')
     if (completedScenes.length === 0) {
       toast({ title: t.messages?.noCompletedScenes, variant: 'destructive' })
       return
@@ -163,27 +393,21 @@ export function StudioPage() {
 
     setIsMerging(true)
     try {
-      // Call the merge endpoint
-      const response = await api.post(`/stories/${STORY_ID}/merge`)
+      const response = await api.post(`/stories/${storyId}/merge`)
       toast({
         title: t.messages?.mergeStarted,
-        description: (t.messages?.mergingScenes || '').replace('{count}', String(response.data.scene_count)),
+        description: (t.messages?.mergingScenes || '').replace(
+          '{count}',
+          String(response.data.scene_count)
+        ),
         variant: 'default',
       })
     } catch (error: any) {
-      if (error?.response?.status === 404) {
-        toast({
-          title: t.messages?.saveStoryFirst,
-          description: t.messages?.saveStoryDesc,
-          variant: 'destructive',
-        })
-      } else {
-        toast({
-          title: t.messages?.mergeFailed,
-          description: error?.response?.data?.detail || error?.message || '',
-          variant: 'destructive',
-        })
-      }
+      toast({
+        title: t.messages?.mergeFailed,
+        description: error?.response?.data?.detail || error?.message || '',
+        variant: 'destructive',
+      })
     } finally {
       setIsMerging(false)
     }
@@ -303,7 +527,9 @@ export function StudioPage() {
           {scenes.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-center">
               <Upload className="mb-3 h-10 w-10 text-muted-foreground" />
-              <h3 className="text-base font-medium">{t.studio?.noScenesYet}</h3>
+              <h3 className="text-base font-medium">
+                {t.studio?.noScenesYet}
+              </h3>
               <p className="mt-1 text-sm text-muted-foreground">
                 {t.studio?.addSceneHint}
               </p>
@@ -333,7 +559,10 @@ export function StudioPage() {
                         size="icon"
                         className="h-7 w-7"
                         onClick={() => generateScene(scene)}
-                        disabled={scene.status === 'processing'}
+                        disabled={
+                          scene.status === 'processing' ||
+                          scene.status === 'queued'
+                        }
                       >
                         <Sparkles className="h-3.5 w-3.5" />
                       </Button>
@@ -355,6 +584,7 @@ export function StudioPage() {
                           onChange={(e) =>
                             updateScene(scene.id, { prompt: e.target.value })
                           }
+                          onBlur={() => syncSceneToBackend(scene)}
                           placeholder={t.studio?.describeScene}
                           rows={3}
                           className="resize-none bg-slate-900/50"
@@ -364,11 +594,12 @@ export function StudioPage() {
                         <Label className="text-xs">{t.form?.character}</Label>
                         <Select
                           value={scene.character_id || ''}
-                          onValueChange={(val) =>
-                            updateScene(scene.id, {
-                              character_id: val || undefined,
-                            })
-                          }
+                          onValueChange={(val) => {
+                            const charId =
+                              val === 'none' ? undefined : val || undefined
+                            updateScene(scene.id, { character_id: charId })
+                            syncSceneToBackend({ ...scene, character_id: charId })
+                          }}
                         >
                           <SelectTrigger className="mt-1">
                             <SelectValue placeholder={t.common?.none} />
@@ -394,7 +625,7 @@ export function StudioPage() {
         {scenes.length > 0 && (
           <>
             <Separator />
-            <div className="flex items-center gap-3 px-4 pt-3">
+            <div className="flex flex-wrap items-center gap-3 px-4 pt-3">
               <div className="flex items-center gap-2">
                 <Label className="text-xs shrink-0">{t.form?.provider}</Label>
                 <Select value={provider} onValueChange={setProvider}>
@@ -403,16 +634,53 @@ export function StudioPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="kling">Kling AI</SelectItem>
-                    <SelectItem value="jimeng">即梦 Jimeng</SelectItem>
+                    <SelectItem value="jimeng">Jimeng</SelectItem>
                     <SelectItem value="vidu">Vidu</SelectItem>
-                    <SelectItem value="cogvideo">智谱 CogVideoX</SelectItem>
+                    <SelectItem value="cogvideo">CogVideoX</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+
+              {/* Generation Mode Toggle */}
+              <div className="flex items-center gap-2">
+                <Label className="text-xs shrink-0">
+                  {t.studio?.generationMode}
+                </Label>
+                <div className="flex rounded-md border border-slate-700 overflow-hidden">
+                  <button
+                    className={`flex items-center gap-1 px-3 py-1.5 text-xs transition-colors ${
+                      generationMode === 'fast'
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-slate-900 text-muted-foreground hover:text-foreground'
+                    }`}
+                    onClick={() => setGenerationMode('fast')}
+                    title={t.studio?.fastModeDesc}
+                  >
+                    <Zap className="h-3 w-3" />
+                    {t.studio?.fastMode}
+                  </button>
+                  <button
+                    className={`flex items-center gap-1 px-3 py-1.5 text-xs transition-colors ${
+                      generationMode === 'coherent'
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-slate-900 text-muted-foreground hover:text-foreground'
+                    }`}
+                    onClick={() => setGenerationMode('coherent')}
+                    title={t.studio?.coherentModeDesc}
+                  >
+                    <Link2 className="h-3 w-3" />
+                    {t.studio?.coherentMode}
+                  </button>
+                </div>
               </div>
             </div>
             <div className="flex flex-col-reverse sm:flex-row items-center justify-between gap-3 p-4 pt-2">
               {mergedVideoUrl ? (
-                <Button variant="anime" className="w-full sm:w-auto" onClick={downloadMergedVideo}>
+                <Button
+                  variant="anime"
+                  className="w-full sm:w-auto"
+                  onClick={downloadMergedVideo}
+                >
                   <Download className="mr-1 h-3 w-3" />
                   {t.button?.downloadMerged}
                 </Button>
@@ -436,9 +704,23 @@ export function StudioPage() {
                   )}
                 </Button>
               )}
-              <Button variant="outline" className="w-full sm:w-auto" onClick={generateAll}>
-                <Play className="mr-1 h-3 w-3" />
-                {t.button?.generateAll}
+              <Button
+                variant="outline"
+                className="w-full sm:w-auto"
+                onClick={generateAll}
+                disabled={isGenerating}
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                    {t.button?.generating}
+                  </>
+                ) : (
+                  <>
+                    <Play className="mr-1 h-3 w-3" />
+                    {t.button?.generateAll}
+                  </>
+                )}
               </Button>
             </div>
           </>
@@ -479,7 +761,10 @@ export function StudioPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowCharDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowCharDialog(false)}
+            >
               {t.common?.cancel}
             </Button>
             <Button onClick={addCharacter} disabled={!newCharName.trim()}>

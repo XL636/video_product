@@ -52,8 +52,11 @@ export interface Scene {
   prompt: string
   character_id?: string
   job_id?: string
+  video_url?: string
   status: string
 }
+
+export type GenerationMode = 'fast' | 'coherent'
 
 export type StylePreset = 'ghibli' | 'shonen' | 'seinen' | 'cyberpunk_anime' | 'chibi'
 

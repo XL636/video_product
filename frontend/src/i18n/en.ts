@@ -188,6 +188,15 @@ export const en = {
     addSceneHint: 'Add your first scene to start building your story.',
     scene: 'Scene',
     describeScene: 'Describe this scene...',
+    generationMode: 'Generation Mode',
+    fastMode: 'Fast',
+    fastModeDesc: 'Parallel generation, faster but less coherent',
+    coherentMode: 'Coherent',
+    coherentModeDesc: 'Chained generation with visual continuity',
+    generatingScene: 'Generating scene {current}/{total}...',
+    storyGenStarted: 'Story generation started!',
+    storyGenFailed: 'Failed to start story generation',
+    creatingStory: 'Setting up story...',
   },
 
   fileUpload: {

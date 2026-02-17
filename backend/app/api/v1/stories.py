@@ -3,13 +3,19 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.database import get_db
 from app.deps import get_current_user
 from app.models import Character, Scene, Story
 from app.models.user import User
 from app.schemas.generation import StoryGenerationRequest
-from app.tasks.generation_tasks import merge_story, process_story_generation
+from app.tasks.generation_tasks import (
+    merge_story,
+    process_generation,
+    process_story_generation,
+    process_story_generation_chained,
+)
 
 router = APIRouter()
 
@@ -325,7 +331,6 @@ async def generate_story(
     db: AsyncSession = Depends(get_db),
 ) -> dict:
     from app.api.v1.generation import _validate_provider_key
-    from app.schemas.generation import GenerationResponse
 
     await _validate_provider_key(db, current_user.id, request.provider)
 
@@ -343,9 +348,12 @@ async def generate_story(
             detail="Story not found",
         )
 
-    # Fetch scenes ordered
+    # Fetch scenes ordered (eager load character to avoid lazy-load in async)
     result = await db.execute(
-        select(Scene).where(Scene.story_id == story.id).order_by(Scene.order_index)
+        select(Scene)
+        .where(Scene.story_id == story.id)
+        .options(selectinload(Scene.character))
+        .order_by(Scene.order_index)
     )
     scenes = result.scalars().all()
 
@@ -355,16 +363,14 @@ async def generate_story(
             detail="Story has no scenes",
         )
 
-    # Create parent story job
-    parent_job_id = str(uuid.uuid4())
+    # Determine generation mode
+    is_coherent = request.generation_mode == "coherent"
 
     # Create individual jobs for each scene
     scene_job_ids: list[str] = []
     total_scenes = len(scenes)
 
     for idx, scene in enumerate(scenes):
-        from app.tasks.generation_tasks import process_generation
-
         # Get character info if available
         char_name = None
         char_desc = None
@@ -381,6 +387,7 @@ async def generate_story(
             request.style_preset,
             idx,
             total_scenes,
+            is_chained=is_coherent,
         )
 
         # Create job record for this scene
@@ -400,6 +407,7 @@ async def generate_story(
                 "original_prompt": scene.prompt,
                 "duration": 5,
                 "aspect_ratio": "16:9",
+                "generation_mode": request.generation_mode,
             },
         )
         db.add(scene_job)
@@ -412,14 +420,21 @@ async def generate_story(
 
     await db.commit()
 
-    # Trigger generation for all scenes
-    for scene_job_id in scene_job_ids:
-        process_generation.delay(scene_job_id)
+    # Dispatch based on generation mode
+    if is_coherent:
+        # Coherent mode: chained I2V generation (sequential)
+        process_story_generation_chained.delay(str(story.id), scene_job_ids)
+    else:
+        # Fast mode: parallel generation
+        for scene_job_id in scene_job_ids:
+            process_generation.delay(scene_job_id)
 
+    mode_label = "coherent (chained)" if is_coherent else "fast (parallel)"
     return {
         "story_id": str(story.id),
         "job_count": len(scenes),
-        "message": f"Started generation for {len(scenes)} scenes",
+        "generation_mode": request.generation_mode,
+        "message": f"Started {mode_label} generation for {len(scenes)} scenes",
     }
 
 
