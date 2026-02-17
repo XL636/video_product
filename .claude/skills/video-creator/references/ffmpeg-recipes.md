@@ -1,7 +1,7 @@
 # FFmpeg Recipes — AnimeGen Studio 后期处理参考手册
 
 > 所有命令通过 Docker 容器执行：`docker compose exec backend ffmpeg ...`
-> 项目根目录: `D:/claude/video_product/anime-video-gen/`
+> 项目根目录: `D:/claude/video_product/`
 
 ---
 

@@ -26,7 +26,7 @@ A full-stack AI-powered anime video generation platform. Upload reference images
 ### 启动 / Setup
 
 ```bash
-git clone https://github.com/XL636/video_product.git && cd anime-video-gen
+git clone https://github.com/XL636/video_product.git && cd video_product
 
 cp .env.example .env       # 配置环境变量 / Configure env vars
 docker compose up -d       # 启动所有服务 / Start all services
@@ -56,7 +56,7 @@ npm run dev
 ## 项目结构 / Project Structure
 
 ```
-anime-video-gen/
+video_product/
 ├── backend/              # FastAPI 后端
 │   └── app/
 │       ├── api/          # API 路由

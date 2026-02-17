@@ -3,7 +3,7 @@
     "animegen": {
       "command": "python",
       "args": ["mcp-server/server.py"],
-      "cwd": "D:\\claude\\video_product\\anime-video-gen"
+      "cwd": "D:\\claude\\video_product"
     }
   }
 }

@@ -81,3 +81,11 @@ celerybeat.pid
 *.bak
 *.tmp
 *.temp
+
+# Non-project files in repo root
+output/
+.playwright-mcp/
+*.png
+
+# Claude Code local settings
+.claude/settings.local.json

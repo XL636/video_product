@@ -137,7 +137,7 @@ merged_video_url = story_detail["merged_video_url"]
 **下载到本地的方法**：
 ```bash
 # 方法 A: 直接 curl（MinIO 公开桶）
-curl -o "D:/claude/video_product/anime-video-gen/output/story_final.mp4" "<merged_video_url>"
+curl -o "D:/claude/video_product/output/story_final.mp4" "<merged_video_url>"
 
 # 方法 B: 通过 Docker
 docker compose exec backend python -c "
@@ -145,7 +145,7 @@ from app.services.minio_service import download_object
 data = download_object('<object_name>')
 with open('/tmp/merged.mp4', 'wb') as f:
     f.write(data)
-" && docker cp anime-video-gen-backend-1:/tmp/merged.mp4 "D:/claude/video_product/anime-video-gen/output/story_final.mp4"
+" && docker cp anime-video-gen-backend-1:/tmp/merged.mp4 "D:/claude/video_product/output/story_final.mp4"
 ```
 
 ---
@@ -439,7 +439,7 @@ if poll_count >= MAX_POLLS:
 所有最终文件保存到项目根目录下的 `output/` 文件夹：
 
 ```bash
-mkdir -p "D:/claude/video_product/anime-video-gen/output"
+mkdir -p "D:/claude/video_product/output"
 ```
 
 文件命名规范：
