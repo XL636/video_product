@@ -1,5 +1,20 @@
 # 开发进度
 
+## 总览
+
+| 指标 | 状态 |
+|------|------|
+| 当前阶段 | Phase 8 已完成，进入优化阶段 |
+| 已完成 Phase | 8 / 8 |
+| 待办任务 | 5 个（T-01 ~ T-05） |
+| Backlog | 7 个想法 |
+| 最近完成 | AI 创意总监 3-Agent 流水线 (v0.7.0) |
+| 最后更新 | 2026-02-23 |
+
+> 任务明细见 [TASKS.md](TASKS.md)，版本变更见 [CHANGELOG.md](CHANGELOG.md)
+
+---
+
 ## Phase 1: 基础框架 ✅
 **完成日期**: 2026-02-13
 
@@ -61,13 +76,6 @@
 - 中英文时长翻译
 - E2E 测试计划 67 个用例（TEST_PLAN.md）
 - 项目级 MCP Server（`mcp-server/server.py`）：15 个工具覆盖全部核心 API
-  - 认证：login / register / get_me
-  - 生成：text-to-video / image-to-video / video-to-anime
-  - 任务：check_job / list_jobs
-  - 画廊：search_gallery
-  - 上传：upload_file
-  - 设置：list_api_keys / save_api_key
-  - 故事：create_story / add_character / add_scene / generate_story / merge_story
 
 ## Phase 7: 故事视频连贯性 ✅
 **完成日期**: 2026-02-17
@@ -114,3 +122,30 @@ Playwright + Jimeng (Seedance 1.5 Pro) 连贯模式 4 场景完整流程：
 ### 已知问题
 - WebSocket 连接失败导致前端场景状态徽章不更新（后端数据正常）
 - StudioPage 偶发重定向到 Gallery（原因待查）
+
+## Phase 8: AI 创意总监多 Agent 流水线 ✅
+**完成日期**: 2026-02-23
+
+### v0.7.0 — 3-Agent 创意流水线
+
+**架构升级：单一 AI → 3-Agent 流水线**
+- Agent 1 (Creative Consultant): 创意顾问，对话 1-3 轮澄清需求，输出 concept brief JSON (temperature 0.7)
+- Agent 2 (Storyboard Director): 分镜师，专业镜头语言（景别/运镜/构图/灯光/动漫技法/转场），生成 storyboard (temperature 0.5)
+- Agent 3 (Prompt Engineer): Prompt 工程师，针对 Seedance 1.5 模型特性优化 prompt（50-120 词、三要素齐全）(temperature 0.3)
+- 用户体验不变：只和 Agent 1 对话，后端自动串联 Agent 2 → Agent 3
+- API 接口不变，前端无需修改
+
+**默认 Provider 切换**
+- 全局默认从 kling → jimeng (Seedance 1.5)
+- ConfirmRequest 默认从 cogvideo → jimeng
+- CreateSessionRequest provider 验证放开为所有 provider
+
+---
+
+## 阻塞项
+
+| 编号 | 问题 | 影响 | 状态 |
+|------|------|------|------|
+| B-01 | WebSocket 偶发断连导致前端状态不更新 | Studio 场景状态徽章不实时 | 待排查 |
+| B-02 | StudioPage 偶发重定向到 Gallery | Studio 页面偶尔无法停留 | 待排查 |
+| B-03 | 真实 API Key 未配置 | 无法端到端验证生成流程 | 待申请 |
