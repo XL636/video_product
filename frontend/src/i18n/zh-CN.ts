@@ -30,6 +30,7 @@ export const zhCN = {
   nav: {
     dashboard: '仪表板',
     create: '创建',
+    aiCreator: 'AI 创作',
     studio: '工作室',
     gallery: '画廊',
     settings: '模型设置',
@@ -282,6 +283,30 @@ export const zhCN = {
     landscape: '16:9 横屏',
     portrait: '9:16 竖屏',
     square: '1:1 方形',
+  },
+
+  // AI 创作
+  aiCreator: {
+    title: 'AI 创意总监',
+    subtitle: '用一句话描述你的视频创意，AI 将帮你完成从构思到生成的全过程',
+    ideaPlaceholder: '例如：一位孤独武士在黄昏的樱花树下漫步...',
+    start: '开始创作',
+    chatTitle: '创意对话',
+    chatPlaceholder: '输入你的回复...',
+    thinking: 'AI 思考中...',
+    storyboardTitle: '分镜脚本',
+    storyTitle: '故事标题',
+    storyDesc: '简短描述',
+    scene: '场景',
+    scenes: '个场景',
+    addScene: '添加场景',
+    regenerate: '重新生成脚本',
+    confirmGenerate: '确认并生成视频',
+    generating: '正在生成视频...',
+    generatingStory: '故事生成进行中，请在任务页面查看进度。',
+    generatingSingle: '视频生成进行中，请在任务页面查看进度。',
+    generationStarted: '生成已开始！',
+    newSession: '新建会话',
   },
 
   // 积分

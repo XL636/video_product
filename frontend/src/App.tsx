@@ -7,6 +7,7 @@ import { CreatePage } from '@/pages/CreatePage'
 import { StudioPage } from '@/pages/StudioPage'
 import { GalleryPage } from '@/pages/GalleryPage'
 import { SettingsPage } from '@/pages/SettingsPage'
+import { AICreatorPage } from '@/pages/AICreatorPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { RegisterPage } from '@/pages/RegisterPage'
 
@@ -72,6 +73,7 @@ export default function App() {
           >
             <Route path="/" element={<DashboardPage />} />
             <Route path="/create" element={<CreatePage />} />
+            <Route path="/ai-creator" element={<AICreatorPage />} />
             <Route path="/studio" element={<StudioPage />} />
             <Route path="/gallery" element={<GalleryPage />} />
             <Route path="/settings" element={<SettingsPage />} />

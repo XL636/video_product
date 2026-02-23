@@ -8,7 +8,7 @@
 | 已完成 Phase | 8 / 8 |
 | 待办任务 | 5 个（T-01 ~ T-05） |
 | Backlog | 7 个想法 |
-| 最近完成 | AI 创意总监 3-Agent 流水线 (v0.7.0) |
+| 最近完成 | AI 创意总监 Bug 修复 (v0.7.1) |
 | 最后更新 | 2026-02-23 |
 
 > 任务明细见 [TASKS.md](TASKS.md)，版本变更见 [CHANGELOG.md](CHANGELOG.md)
@@ -139,6 +139,17 @@ Playwright + Jimeng (Seedance 1.5 Pro) 连贯模式 4 场景完整流程：
 - 全局默认从 kling → jimeng (Seedance 1.5)
 - ConfirmRequest 默认从 cogvideo → jimeng
 - CreateSessionRequest provider 验证放开为所有 provider
+
+### v0.7.1 — AI 创意总监 Bug 修复
+**完成日期**: 2026-02-23
+
+Playwright E2E 测试发现并修复 5 个问题：
+- `creative_sessions` 数据库表缺失（模型有但未迁移）→ 手动 CREATE TABLE 补建
+- LLM 调用（ZhiPu GLM）失败时返回 500 Internal Server Error → 改为友好中文错误提示（401→"Key 无效"、429→"频率超限"）
+- `CreateSessionRequest.provider` 默认值 `cogvideo` → `jimeng`
+- 前端确认生成 fallback provider `cogvideo` → `jimeng`
+- Nginx 启动时 upstream DNS 解析失败导致容器崩溃 → 改用 Docker DNS resolver + 变量化代理
+- 新增 `tests/e2e/ai-creator.spec.ts`（4 个测试用例，全部通过）
 
 ---
 

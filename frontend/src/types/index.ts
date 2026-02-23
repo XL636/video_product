@@ -93,6 +93,48 @@ export interface GenerationRequest {
   style_strength?: number
 }
 
+// --- AI Creative Director ---
+
+export type CreativeSessionStatus = 'chatting' | 'storyboard_ready' | 'confirmed' | 'generating' | 'completed'
+
+export interface StoryboardCharacter {
+  name: string
+  description: string
+}
+
+export interface StoryboardScene {
+  order_index: number
+  prompt: string
+  character_name?: string
+  duration: number
+}
+
+export interface Storyboard {
+  title: string
+  description: string
+  style_preset: StylePreset
+  generation_mode: GenerationMode
+  characters: StoryboardCharacter[]
+  scenes: StoryboardScene[]
+}
+
+export interface ChatMessage {
+  role: 'user' | 'assistant'
+  content: string
+}
+
+export interface CreativeSession {
+  id: string
+  status: CreativeSessionStatus
+  initial_idea: string
+  conversation_history: ChatMessage[]
+  storyboard: Storyboard | null
+  story_id: string | null
+  last_reply?: string
+  created_at: string
+  updated_at: string
+}
+
 export interface WebSocketMessage {
   type: 'job_update' | 'job_completed' | 'job_failed' | 'progress'
   job_id: string

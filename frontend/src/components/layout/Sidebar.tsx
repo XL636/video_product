@@ -9,6 +9,7 @@ import {
   Menu,
   X,
   Globe,
+  Sparkles,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -19,6 +20,7 @@ import { useLanguage } from '@/hooks/useLanguage'
 export const navItems = (t: any) => [
   { to: '/', icon: LayoutDashboard, label: t.nav?.dashboard || 'Dashboard' },
   { to: '/create', icon: Wand2, label: t.nav?.create || 'Create' },
+  { to: '/ai-creator', icon: Sparkles, label: t.nav?.aiCreator || 'AI Creator' },
   { to: '/studio', icon: Film, label: t.nav?.studio || 'Studio' },
   { to: '/gallery', icon: Image, label: t.nav?.gallery || 'Gallery' },
   { to: '/settings', icon: Settings, label: t.nav?.settings || 'Settings' },

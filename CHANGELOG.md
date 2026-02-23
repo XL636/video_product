@@ -5,6 +5,56 @@
 格式遵循 [Keep a Changelog](https://keepachangelog.com/)，
 本项目遵循 [语义化版本控制](https://semver.org/)。
 
+## [0.7.1] - 2026-02-23
+
+### 修复
+- **AI 创意总监错误处理**：LLM 调用失败时返回友好中文错误提示，不再 500 崩溃
+  - API Key 无效 → 502 "智谱 API Key 无效或已过期"
+  - API Key 未配置 → 400 "请在 Settings 页面添加 CogVideo API Key"
+  - 频率超限 → 502 "请稍后重试"
+- **默认 Provider 修正**：`CreateSessionRequest.provider` 默认值从 `cogvideo` → `jimeng`
+- **前端 fallback Provider 修正**：确认生成时 fallback 从 `cogvideo` → `jimeng`
+- **Nginx DNS 解析崩溃**：改用 Docker 内置 resolver + 变量代理，避免 upstream 启动顺序问题
+- **数据库缺表**：`creative_sessions` 表未创建，导致 AI 创意总监创建会话时 500 崩溃
+- **Playwright 配置**：修复 `testDir` 嵌套路径导致测试找不到的问题
+
+### 新增
+- `tests/e2e/ai-creator.spec.ts` — AI 创意总监 E2E 测试（4 用例）
+
+### 改动文件
+- `backend/app/api/v1/creative.py` — 默认 provider + 错误处理 + 函数重命名
+- `backend/app/services/creative/llm_client.py` — LLM 调用错误捕获
+- `frontend/src/pages/AICreatorPage.tsx` — fallback provider 修正
+- `nginx/nginx.conf` — resolver + 变量化 upstream
+- `tests/e2e/playwright.config.ts` — testDir 修复
+- `tests/e2e/ai-creator.spec.ts` — 新增
+
+## [0.7.0] - 2026-02-23
+
+### 新增功能
+- **AI 创意总监 3-Agent 流水线**：将单一 AI 拆分为 3 个专业 Agent 链式协作
+  - Agent 1 (Creative Consultant): 创意顾问，与用户对话 1-3 轮澄清角色/风格/故事，输出 concept brief
+  - Agent 2 (Storyboard Director): 分镜师，运用专业镜头语言（景别/运镜/构图/灯光/动漫技法/转场）生成分镜脚本
+  - Agent 3 (Prompt Engineer): 针对 Seedance 1.5 模型优化每个场景 prompt（50-120 词，三要素齐全）
+- Agent prompt 注入全面创意知识库
+  - 6 种景别、8 种运镜、5 种构图、7 种灯光、7 种动漫技法
+  - Seedance 1.5 模型偏好/避免事项/最佳 prompt 结构
+
+### 变更
+- 全局默认 provider 从 `kling` 改为 `jimeng` (Seedance 1.5)
+- `ConfirmRequest.provider` 默认值从 `cogvideo` 改为 `jimeng`
+- `CreateSessionRequest.provider` 验证放开为所有 provider
+- 流水线温度策略：Agent 1 (0.7 创意) → Agent 2 (0.5 结构化) → Agent 3 (0.3 精确)
+
+### 改动文件
+- `backend/app/services/creative/agents/consultant.py` — 新增
+- `backend/app/services/creative/agents/storyboarder.py` — 新增
+- `backend/app/services/creative/agents/prompt_engineer.py` — 新增
+- `backend/app/services/creative/director.py` — 重写为 3-Agent 编排器
+- `backend/app/api/v1/creative.py` — provider 验证和默认值调整
+- `frontend/src/stores/settingsStore.ts` — defaultProvider → jimeng
+- `backend/app/services/generation/hailuo.py` — Seedance 2.0 升级预留
+
 ## [0.6.1] - 2026-02-17
 
 ### 修复

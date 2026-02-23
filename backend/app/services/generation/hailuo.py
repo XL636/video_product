@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 JIMENG_API_BASE = "https://ark.cn-beijing.volces.com/api/v3"
 
 # 火山方舟 Seedance 模型 ID
+# TODO: upgrade to seedance-2.0 when available
 SEEDANCE_MODEL_T2V = "doubao-seedance-1-5-pro-251215"
 SEEDANCE_MODEL_I2V = "doubao-seedance-1-5-pro-251215"
 

@@ -504,6 +504,76 @@ def merge_story(story_id: str) -> str:
 
 
 # ===========================================================================
+# AI Creative Director Tools
+# ===========================================================================
+
+
+@mcp.tool()
+def ai_creative_start(idea: str) -> str:
+    """Start an AI creative session. Provide a short idea and the AI Creative Director will
+    guide you through 2-3 rounds of conversation to build a structured storyboard.
+
+    Args:
+        idea: Your video idea in one sentence (e.g. "A samurai wandering through cherry blossoms at dusk")
+    """
+    with _client() as c:
+        r = c.post(
+            "/creative/sessions",
+            headers=_headers(),
+            json={"idea": idea},
+            timeout=90,
+        )
+        r.raise_for_status()
+        return _fmt(r.json())
+
+
+@mcp.tool()
+def ai_creative_chat(session_id: str, message: str) -> str:
+    """Continue the creative conversation in an existing session.
+
+    Args:
+        session_id: UUID of the creative session (from ai_creative_start)
+        message: Your reply to the AI Creative Director
+    """
+    with _client() as c:
+        r = c.post(
+            f"/creative/sessions/{session_id}/chat",
+            headers=_headers(),
+            json={"message": message},
+            timeout=90,
+        )
+        r.raise_for_status()
+        return _fmt(r.json())
+
+
+@mcp.tool()
+def ai_creative_confirm(
+    session_id: str,
+    provider: str = "cogvideo",
+    style_preset: str | None = None,
+) -> str:
+    """Confirm the storyboard and trigger video generation.
+
+    Args:
+        session_id: UUID of the creative session
+        provider: AI provider for generation - cogvideo, kling, jimeng, vidu
+        style_preset: Override style preset (if None, uses the one from the storyboard)
+    """
+    body: dict = {"provider": provider}
+    if style_preset:
+        body["style_preset"] = style_preset
+
+    with _client() as c:
+        r = c.post(
+            f"/creative/sessions/{session_id}/confirm",
+            headers=_headers(),
+            json=body,
+        )
+        r.raise_for_status()
+        return _fmt(r.json())
+
+
+# ===========================================================================
 # Entry point
 # ===========================================================================
 

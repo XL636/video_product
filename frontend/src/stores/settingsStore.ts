@@ -16,7 +16,7 @@ interface SettingsState {
 export const useSettingsStore = create<SettingsState>()(
   persist(
     (set) => ({
-      defaultProvider: 'kling',
+      defaultProvider: 'jimeng',
       defaultStylePreset: 'ghibli',
       defaultDuration: 5,
       defaultAspectRatio: '16:9',
